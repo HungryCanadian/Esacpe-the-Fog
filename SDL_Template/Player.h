@@ -24,9 +24,10 @@ private:
 	AnimatedGLTexture * mDeathAnimation;
 
 	float mMoveSpeed;
-	Vector2 mMoveBounds;
+	Vector2 mMoveBoundsX;
+	Vector2 mMoveBoundsY;
 
-	static const int MAX_BULLETS = 2;
+	static const int MAX_BULLETS = 5;
 	Bullet * mBullets[MAX_BULLETS];
 
 private:

@@ -11,17 +11,20 @@ Player::Player() {
 	mAnimating = false;
 	mWasHit = false;
 
-	mScore = 0;
-	mLives = 2;
+	mScore = 32456;
+	mLives = 3;
 	
-	mTexture = new GLTexture("PlayerShips.png", 0, 0, 60, 64);
+	mTexture = new GLTexture("Ship.png");
+	mTexture->Scale(Vector2(0.75f, 0.75f));
 	mTexture->Parent(this);
 	mTexture->Position(Vec2_Zero);
+	mTexture->Flip(false, true);
 
 	mMoveSpeed = 300.0f;
-	mMoveBounds = Vector2(0.0f + mTexture->ScaledDimensions().x/2, Graphics::SCREEN_WIDTH - mTexture->ScaledDimensions().x/2);
+	mMoveBoundsX = Vector2(0.0f + 35 +mTexture->ScaledDimensions().x/2, Graphics::SCREEN_WIDTH - 35 - mTexture->ScaledDimensions().x/2);
+	mMoveBoundsY = Vector2(0.0f + 50 + mTexture->ScaledDimensions().y / 2, Graphics::SCREEN_HEIGHT - 180 - mTexture->ScaledDimensions().y / 2);
 
-	mDeathAnimation = new AnimatedGLTexture("PlayerExplosion.png", 0, 0, 128, 128, 4, 1.0f, Animation::Layouts::Horizontal);
+	mDeathAnimation = new AnimatedGLTexture("EnemyExplosion.png", 0, 0, 128, 128, 4, 1.0f, Animation::Layouts::Horizontal);
 	mDeathAnimation->Parent(this);
 	mDeathAnimation->Position(Vec2_Zero);
 	mDeathAnimation->SetWrapMode(Animation::WrapModes::Once);
@@ -54,23 +57,17 @@ Player::~Player() {
 }
 
 void Player::HandleMovement() {
-	if (mInput->KeyDown(SDL_SCANCODE_RIGHT)) {
-		Translate(Vec2_Right * mMoveSpeed * mTimer->DeltaTime(), World);
+	if (mInput->KeyDown(SDL_SCANCODE_D)) {
+		Rotation(Rotation(GameEntity::Local) + 180.0f * mTimer->DeltaTime());
 	}
-	else if (mInput->KeyDown(SDL_SCANCODE_LEFT)) {
-		Translate(-Vec2_Right * mMoveSpeed * mTimer->DeltaTime(), World);
+	else if (mInput->KeyDown(SDL_SCANCODE_A)) {
+		Rotation(Rotation(GameEntity::Local) + -180.0f * mTimer->DeltaTime());
 	}
 
-	if (mInput->KeyDown(SDL_SCANCODE_UP)) {
-		Translate(-Vec2_Up * mMoveSpeed * mTimer->DeltaTime(), World);
-		mTexture->Flip(false, false);
-		mDeathAnimation->Flip(false, false);
+	if (mInput->KeyDown(SDL_SCANCODE_W)) {
+		Translate(-Vec2_Up * mMoveSpeed * mTimer->DeltaTime(), Local);
 	}
-	else if (mInput->KeyDown(SDL_SCANCODE_DOWN)) {
-		Translate(Vec2_Up * mMoveSpeed * mTimer->DeltaTime(), World);
-		mTexture->Flip(false, true);
-		mDeathAnimation->Flip(false, true);
-	}
+
 
 	if (mInput->KeyPressed(SDL_SCANCODE_X)) {
 		mAnimating = true;
@@ -80,11 +77,19 @@ void Player::HandleMovement() {
 	}
 
 	Vector2 pos = Position(Local);
-	if (pos.x < mMoveBounds.x) {
-		pos.x = mMoveBounds.x;
+	if (pos.x < mMoveBoundsX.x) {
+		pos.x = mMoveBoundsX.x;
 	}
-	else if (pos.x > mMoveBounds.y) {
-		pos.x = mMoveBounds.y;
+	else if (pos.x > mMoveBoundsX.y) {
+		pos.x = mMoveBoundsX.y;
+	}
+
+	// Handle Y bounds
+	if (pos.y < mMoveBoundsY.x) {
+		pos.y = mMoveBoundsY.x;
+	}
+	else if (pos.y > mMoveBoundsY.y) {
+		pos.y = mMoveBoundsY.y;
 	}
 
 	Position(pos);

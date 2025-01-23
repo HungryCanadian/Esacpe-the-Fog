@@ -18,14 +18,17 @@ private:
 	// Top Bar Entities
 	GameEntity * mTopBar;
 	Texture * mPlayerOne;
+	Texture* mPlayerOneExtrude;
 	Texture * mQuit;
 	Texture * mHiScore;
+	Texture* mHiScoreExtrude;
 	Scoreboard * mPlayerOneScore;
 	Scoreboard * mTopScore;
 
 	// Logo Entities
-	Texture * mLogo;
-	AnimatedGLTexture * mAnimatedLogo;
+	Texture* mLogo;
+	Texture* mLogoExtrude;
+	AnimatedGLTexture* mAnimatedLogo;
 
 	// Play Mode Entities
 	GameEntity * mPlayModes;

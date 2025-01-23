@@ -6,21 +6,27 @@ StartScreen::StartScreen() {
 
 	// top bar entities
 	mTopBar = new GameEntity(Graphics::SCREEN_WIDTH * 0.5f, 80.0f);
-	mPlayerOne = new GLTexture("1UP", "emulogic.ttf", 32, { 200, 0, 0 });
-	mHiScore = new GLTexture("HI SCORE", "emulogic.ttf", 32, { 200, 0, 0 });
-	mPlayerOneScore = new Scoreboard();
-	mTopScore = new Scoreboard();
+	mPlayerOne = new GLTexture("1UP", "Pixel.otf", 52, { 200, 200, 200 });
+	mPlayerOneExtrude = new GLTexture("1UP", "Extrude.otf", 52, { 50, 0, 200 });
+	mHiScore = new GLTexture("HI SCORE", "Pixel.otf", 52, { 200, 200, 200 });
+	mHiScoreExtrude = new GLTexture("HI SCORE", "Extrude.otf", 52, { 50, 0, 200 });
+	mPlayerOneScore = new Scoreboard({ 0, 0, 200 });
+	mTopScore = new Scoreboard({ 0, 0, 200 });
 
 	mBackground = new GLTexture("4.png");
 
 	mTopBar->Parent(this);
 	mPlayerOne->Parent(mTopBar);
+	mPlayerOneExtrude->Parent(mTopBar);
 	mHiScore->Parent(mTopBar);
+	mHiScoreExtrude->Parent(mTopBar);
 	mPlayerOneScore->Parent(mTopBar);
 	mTopScore->Parent(mTopBar);
 
 	mPlayerOne->Position(-Graphics::SCREEN_WIDTH * 0.35f, 0.0f);
+	mPlayerOneExtrude->Position(-Graphics::SCREEN_WIDTH * 0.35f, 0.0f);
 	mHiScore->Position(-30.0f, 0.0f);
+	mHiScoreExtrude->Position(-30.0f, 0.0f);
 
 	mPlayerOneScore->Position(-Graphics::SCREEN_WIDTH * 0.23f, 40.0f);
 	mTopScore->Position(Graphics::SCREEN_WIDTH * 0.05f, 40.0f);
@@ -28,18 +34,21 @@ StartScreen::StartScreen() {
 	mTopScore->Score(308055);
 
 	// logo entities
-	mLogo = new GLTexture("GalagaLogo.png", 0, 0, 360, 180);
-	mAnimatedLogo = new AnimatedGLTexture("GalagaLogo.png", 0, 0, 360, 180, 3, 0.2f, Animation::Layouts::Vertical);
+	mLogo = new GLTexture("Escape the Fog", "Pixel.otf", 100, { 200, 200, 200 });
+	mLogoExtrude = new GLTexture("Escape the Fog", "Extrude.otf", 100, { 50, 0, 200 });
+	mAnimatedLogo = new AnimatedGLTexture("CaspiraLogo.png", 0, 0, 360, 180, 3, 0.2f, Animation::Layouts::Vertical);
 	
 	mLogo->Parent(this);
+	mLogoExtrude->Parent(this);
 	mAnimatedLogo->Parent(this);
 
 	mLogo->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
+	mLogoExtrude->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
 	mAnimatedLogo->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
 
 	// play mode entities
 	mPlayModes = new GameEntity(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.55f);
-	mOnePlayerMode = new GLTexture("1 Player ", "emulogic.ttf", 32, { 230, 230, 230 });
+	mOnePlayerMode = new GLTexture("Start", "emulogic.ttf", 32, { 230, 230, 230 });
 	mQuit = new GLTexture("Quit", "emulogic.ttf", 32, { 230, 230, 230 });
 	mCursor = new GLTexture("Cursor.png");
 
@@ -58,9 +67,9 @@ StartScreen::StartScreen() {
 
 	// bottom bar entities
 	mBottomBar = new GameEntity(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.7f);
-	mNamco = new GLTexture("namcot", "namco__.ttf", 36, { 200, 0, 0 });
-	mDates = new GLTexture("1981 1985 NAMCO LTD.", "emulogic.ttf", 32, { 230, 230, 230 });
-	mRights = new GLTexture("ALL RIGHTS RESERVED", "emulogic.ttf", 32, { 230, 230, 230 });
+	mNamco = new GLTexture("estate games", "namco__.ttf", 36, { 75, 0, 250 });
+	mDates = new GLTexture("January 2025", "Pixel.otf", 72, { 230, 230, 230 });
+	mRights = new GLTexture("Something something", "Pixel.otf", 72, { 230, 230, 230 });
 
 	mBottomBar->Parent(this);
 	mNamco->Parent(mBottomBar);
@@ -70,6 +79,7 @@ StartScreen::StartScreen() {
 	mNamco->Position(Vec2_Zero);
 	mDates->Position(0.0f, 90.0f);
 	mRights->Position(0.0f, 170.0f);
+	mBackground->Position(Graphics::Instance()->SCREEN_HEIGHT / 2,Graphics::Instance()->SCREEN_WIDTH / 2);
 
 	// screen animation variables
 	ResetAnimation();
@@ -82,10 +92,14 @@ StartScreen::~StartScreen() {
 	mTopBar = nullptr;
 	delete mPlayerOne;
 	mPlayerOne = nullptr;
+	delete mPlayerOneExtrude;
+	mPlayerOneExtrude = nullptr;
 	delete mQuit;
 	mQuit = nullptr;
 	delete mHiScore;
 	mHiScore = nullptr;
+	delete mHiScoreExtrude;
+	mHiScoreExtrude = nullptr;
 	delete mPlayerOneScore;
 	mPlayerOneScore = nullptr;
 	delete mTopScore;
@@ -94,6 +108,8 @@ StartScreen::~StartScreen() {
 	// logo entities
 	delete mLogo;
 	mLogo = nullptr;
+	delete mLogoExtrude;
+	mLogoExtrude = nullptr;
 	delete mAnimatedLogo;
 	mAnimatedLogo = nullptr;
 
@@ -155,35 +171,40 @@ void StartScreen::Update() {
 			mAnimationDone = true;
 		}
 
-		if (mInput->KeyPressed(SDL_SCANCODE_DOWN) || mInput->KeyPressed(SDL_SCANCODE_UP)) {
+		if (mInput->KeyPressed(SDL_SCANCODE_S) || mInput->KeyPressed(SDL_SCANCODE_W)) {
 			mAnimationTimer = mAnimationTotalTime;
 		}
 	}
 	else {
 		mAnimatedLogo->Update();
 
-		if (mInput->KeyPressed(SDL_SCANCODE_DOWN)) {
+		if (mInput->KeyPressed(SDL_SCANCODE_S)) {
 			ChangeSelectedMode(1);
 		}
-		else if (mInput->KeyPressed(SDL_SCANCODE_UP)) {
+		else if (mInput->KeyPressed(SDL_SCANCODE_W)) {
 			ChangeSelectedMode(-1);
 		}
 	}
 }
 
 void StartScreen::Render() {
+	mBackground->Render();
+	mPlayerOneExtrude->Render();
 	mPlayerOne->Render();
+	mHiScoreExtrude->Render();
 	mHiScore->Render();
 	mPlayerOneScore->Render();
 	mTopScore->Render();
-	mBackground->Render();
 
-	if (!mAnimationDone) {
+	mLogoExtrude->Render();
+	mLogo->Render();
+
+	/*if (!mAnimationDone) {
 		mLogo->Render();
 	}
 	else {
 		mAnimatedLogo->Render();
-	}
+	}*/
 
 	mOnePlayerMode->Render();
 	mQuit->Render();

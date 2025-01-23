@@ -26,9 +26,9 @@ namespace SDLFramework {
 			GL
 		};
 
-		static const short SCREEN_WIDTH = 896;
-		static const short SCREEN_HEIGHT = 1024;
-		const char* WINDOW_TITLE = "Game";
+		static const short SCREEN_WIDTH = 1024;
+		static const short SCREEN_HEIGHT = 896;
+		const char* WINDOW_TITLE = "Escape the Fog";
 
 	protected:
 		static Graphics* sInstance;
