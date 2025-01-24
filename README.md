@@ -1,4 +1,6 @@
 # VGDGrap
-# VGD Graphics Programming
-# Jonathon Cannon Assignment 1
-# Escape the Archipelago
+VGD Graphics Programming
+# Assignment 1
+Jonathon Cannon
+
+Escape the Archipelago
