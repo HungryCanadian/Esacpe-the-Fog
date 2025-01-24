@@ -18,9 +18,9 @@ void Scoreboard::Score(int score) {
 
 	if (score == 0) {
 		for (int i = 0; i < 2; i++) {
-			mScore.push_back(new GLTexture("0", "Pixel.otf", 45, mColor));
+			mScore.push_back(new GLTexture("0", "emulogic.ttf", 24, mColor));
 			mScore[i]->Parent(this);
-			mScore[i]->Position(Vector2(-32.0f * i, 0.0f));
+			mScore[i]->Position(Vector2(-25.0f * i, 0.0f));
 		}
 	}
 	else {
@@ -28,9 +28,9 @@ void Scoreboard::Score(int score) {
 		unsigned lastIndex = (unsigned)str.length() - 1;
 
 		for (unsigned i = 0; i <= lastIndex; i++) {
-			mScore.push_back(new GLTexture(str.substr(i, 1), "Pixel.otf", 45, mColor));
+			mScore.push_back(new GLTexture(str.substr(i, 1), "emulogic.ttf", 24, mColor));
 			mScore[i]->Parent(this);
-			mScore[i]->Position(Vector2(-32.0f * (lastIndex - i), 0.0f));
+			mScore[i]->Position(Vector2(-25.0f * (lastIndex - i), 0.0f));
 		}
 	}
 }

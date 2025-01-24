@@ -20,8 +20,11 @@ private:
 	int mScore;
 	int mLives;
 
-	Texture * mTexture;
+	Texture * mTexture[4];
 	AnimatedGLTexture * mDeathAnimation;
+
+	
+	int mCurrentTexture = 0;
 
 	float mMoveSpeed;
 	Vector2 mMoveBoundsX;

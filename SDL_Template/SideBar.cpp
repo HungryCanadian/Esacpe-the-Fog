@@ -58,7 +58,7 @@ SideBar::SideBar() {
 	//One up
 	mOneUpLabel = new GLTexture("1UP", "emulogic.ttf", 18, { 150,150,150 });
 	mOneUpLabel->Parent(this);
-	mOneUpLabel->Position(-45.0f, 145.0f);
+	mOneUpLabel->Position(-45.0f, 0.0f);
 
 	mBlinkTimer = 0.0f;
 	mBlinkInterval = 0.5f;
