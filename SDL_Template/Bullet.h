@@ -7,7 +7,7 @@ using namespace SDLFramework;
 
 class Bullet : public PhysEntity {
 private:
-	static const int OFFSCREEN_BUFFER = 10;
+	static const int OFFSCREEN_BUFFER = -80;
 
 	Timer * mTimer;
 

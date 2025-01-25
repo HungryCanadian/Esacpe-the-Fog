@@ -11,18 +11,25 @@ Player::Player() {
 	mAnimating = false;
 	mWasHit = false;
 
-	mScore = 32456;
+	mScore = 0;
 	mLives = 3;
 	
-	mTexture = new GLTexture("Ship.png");
-	mTexture->Scale(Vector2(0.75f, 0.75f));
-	mTexture->Parent(this);
-	mTexture->Position(Vec2_Zero);
-	mTexture->Flip(false, true);
+	mTexture[0] = new GLTexture("Ship.png");
+	mTexture[1] = new GLTexture("Ship1.png");
+	mTexture[2] = new GLTexture("Ship2.png");
+	mTexture[3] = new GLTexture("Ship3.png");
 
-	mMoveSpeed = 300.0f;
-	mMoveBoundsX = Vector2(0.0f + 35 +mTexture->ScaledDimensions().x/2, Graphics::SCREEN_WIDTH - 35 - mTexture->ScaledDimensions().x/2);
-	mMoveBoundsY = Vector2(0.0f + 50 + mTexture->ScaledDimensions().y / 2, Graphics::SCREEN_HEIGHT - 180 - mTexture->ScaledDimensions().y / 2);
+	for (int i = 0; i < 4; i++) {
+		mTexture[i]->Scale(Vector2(0.5f, 0.5f));
+		mTexture[i]->Parent(this);
+		mTexture[i]->Position(Vec2_Zero);
+		mTexture[i]->Flip(false, true);
+
+
+		mMoveBoundsX = Vector2(0.0f + 35 + mTexture[i]->ScaledDimensions().x / 2, Graphics::SCREEN_WIDTH - 35 - mTexture[i]->ScaledDimensions().x / 2);
+		mMoveBoundsY = Vector2(0.0f + 50 + mTexture[i]->ScaledDimensions().y / 2, Graphics::SCREEN_HEIGHT - 180 - mTexture[i]->ScaledDimensions().y / 2);
+	}
+	mMoveSpeed = 200.0f;
 
 	mDeathAnimation = new AnimatedGLTexture("EnemyExplosion.png", 0, 0, 128, 128, 4, 1.0f, Animation::Layouts::Horizontal);
 	mDeathAnimation->Parent(this);
@@ -34,8 +41,8 @@ Player::Player() {
 	}
 
 	AddCollider(new BoxCollider(Vector2(16.0f, 67.0f)));
-	AddCollider(new BoxCollider(Vector2(20.0f, 37.0f)), Vector2( 18.0f, 10.0f));
-	AddCollider(new BoxCollider(Vector2(20.0f, 37.0f)), Vector2(-18.0f, 10.0f));
+	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2( 9.0f, 5.0f));
+	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2(-9.0f, 5.0f));
 
 	mId = PhysicsManager::Instance()->RegisterEntity(this, PhysicsManager::CollisionLayers::Friendly);
 }
@@ -45,8 +52,10 @@ Player::~Player() {
 	mInput = nullptr;
 	mAudio = nullptr;
 
-	delete mTexture;
-	mTexture = nullptr;
+	for (int i = 0; i < 4; i++) {
+		delete mTexture[i];
+		mTexture[i] = nullptr;
+	}
 
 	delete mDeathAnimation;
 	mDeathAnimation = nullptr;
@@ -67,13 +76,17 @@ void Player::HandleMovement() {
 	if (mInput->KeyDown(SDL_SCANCODE_W)) {
 		Translate(-Vec2_Up * mMoveSpeed * mTimer->DeltaTime(), Local);
 	}
-
-
-	if (mInput->KeyPressed(SDL_SCANCODE_X)) {
-		mAnimating = true;
-		mDeathAnimation->ResetAnimation();
-		//mAudio->PlaySFX("SFX/PlayerExplosion.wav");
-		mWasHit = true;
+	if (mInput->KeyPressed(SDL_SCANCODE_1)) {
+		mCurrentTexture = 0;  // Set to first texture
+	}
+	else if (mInput->KeyPressed(SDL_SCANCODE_2)) {
+		mCurrentTexture = 1;  // Set to second texture
+	}
+	else if (mInput->KeyPressed(SDL_SCANCODE_3)) {
+		mCurrentTexture = 2;  // Set to third texture
+	}
+	else if (mInput->KeyPressed(SDL_SCANCODE_4)) {
+		mCurrentTexture = 3;  // Set to fourth texture
 	}
 
 	Vector2 pos = Position(Local);
@@ -100,6 +113,7 @@ void Player::HandleFiring() {
 		for (int i = 0; i < MAX_BULLETS; ++i) {
 			if (!mBullets[i]->Active()) {
 				mBullets[i]->Fire(Position());
+				Mix_Volume(-1, 12);
 				mAudio->PlaySFX("SFX/Fire.wav");
 				break;
 			}
@@ -132,7 +146,7 @@ bool Player::IgnoreCollisions()
 	return !mVisible || mAnimating;
 }
 
-void Player::Hit(PhysEntity * other) {
+void Player::Hit(PhysEntity* other) {
 	mLives -= 1;
 	mAnimating = true;
 	mDeathAnimation->ResetAnimation();
@@ -141,7 +155,12 @@ void Player::Hit(PhysEntity * other) {
 }
 
 bool Player::WasHit() {
-	return mWasHit;
+	mLives -= 1;
+	mAnimating = true;
+	mDeathAnimation->ResetAnimation();
+	mAudio->PlaySFX("PlayerExplosion.wav");
+	mWasHit = true;
+	return true;
 }
 
 void Player::Update() {
@@ -172,7 +191,7 @@ void Player::Render() {
 			mDeathAnimation->Render();
 		}
 		else {
-			mTexture->Render();
+			mTexture[mCurrentTexture]->Render();
 		}
 	}
 
