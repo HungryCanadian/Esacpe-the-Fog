@@ -23,12 +23,12 @@ SideBar::SideBar() {
 	mLevelExtrude = new GLTexture("Level", "Extrude.otf", 31, { 0,0,0 });
 	mLevelExtrude->Parent(this);
 	mLevelExtrude->Position(190.0f, -25.0f);
-	mLevelNumber = new GLTexture("1", "Pixel.otf", 32, { 250,250,250 });
+	mLevelNumber = new Scoreboard();
 	mLevelNumber->Parent(this);
 	mLevelNumber->Position(190.0f, 0.0f);
-	mLevelNumberExtrude = new GLTexture("1", "Extrude.otf", 31, { 0,0,0 });
-	mLevelNumberExtrude->Parent(this);
-	mLevelNumberExtrude->Position(190.0f, 0.0f);
+	//mLevelNumberExtrude = new GLTexture("1", "Extrude.otf", 31, { 0,0,0 });
+	//mLevelNumberExtrude->Parent(this);
+	//mLevelNumberExtrude->Position(190.0f, 0.0f);
 
 	mPowerLabel = new GLTexture("Power-Up", "Pixel.otf", 32, { 150,150,150 });
 	mPowerLabel->Parent(this);
@@ -260,7 +260,7 @@ void SideBar::SetPlayerScore(int score) {
 
 void SideBar::SetLevel(int level) {
 	ClearFlags();
-
+	mLevelNumber->Score(level);
 	mRemainingLevels = level;
 	mFlagXOffset = 0.0f;
 }
@@ -293,7 +293,7 @@ void SideBar::Render() {
 	mHighLabel->Render();
 	mLevelExtrude->Render();
 	mLevel->Render();
-	mLevelNumberExtrude->Render();
+	//mLevelNumberExtrude->Render();
 	mLevelNumber->Render();
 	mPowerLabelExtrude->Render();
 	mPowerLabel->Render();

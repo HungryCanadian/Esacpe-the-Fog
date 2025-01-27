@@ -6,7 +6,7 @@
 #include "PhysEntity.h"
 #include "Formation.h"
 
-class Enemy : public GameEntity {
+class Enemy : public PhysEntity {
 public:
 	enum States { FlyIn, InFormation, Diving, Dead };
 	enum Types { Butterfly, Wasp, Boss };
@@ -22,9 +22,13 @@ public:
 	virtual void Dive(int type = 0);
 
 	States CurrentState();
+	static void CurrentPlayer(Player* player);
+
 
 	Types Type();
 	int Index();
+
+	virtual void Hit(PhysEntity* other) override;
 
 	void Update() override;
 	void Render() override;
@@ -35,7 +39,7 @@ protected:
 	static Player* sPlayer;
 	Timer* mTimer;
 
-	Texture* mTextures[2];
+	Texture* mTexture;
 	AnimatedTexture* mDeathAnimation;
 
 	States mCurrentState;
@@ -64,14 +68,14 @@ protected:
 	virtual void HandleFlyInState();
 	virtual void HandleInFormationState();
 	virtual void HandleDiveState() = 0;
-	virtual void HandleDeadState() = 0;
+	virtual void HandleDeadState();
 
 	void HandleStates();
 
 	virtual void RenderFlyInState();
 	virtual void RenderInFormationState();
 	virtual void RenderDiveState() = 0;
-	virtual void RenderDeadState() = 0;
+	virtual void RenderDeadState();
 
 	void RenderStates();
 private:

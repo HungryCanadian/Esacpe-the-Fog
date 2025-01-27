@@ -1,7 +1,9 @@
 #include "Enemy.h"
+#include "BoxCollider.h"
+#include "PhysicsManager.h"
 
 std::vector<std::vector<Vector2>> Enemy::sPaths;
-Player* Enemy::sPlayer = nullptr;
+Player * Enemy::sPlayer = nullptr;
 Formation* Enemy::sFormation = nullptr;
 
 void Enemy::CreatePaths() {
@@ -145,6 +147,14 @@ Enemy::Types Enemy::Type() {
 	return mType;
 }
 
+void Enemy::Hit(PhysEntity* other) {
+	if (mCurrentState == InFormation) {
+		Parent(nullptr);
+	}
+
+	mCurrentState = Dead;
+}
+
 int Enemy::Index() {
 	return mIndex;
 }
@@ -211,7 +221,7 @@ void Enemy::HandleStates() {
 }
 
 void Enemy::RenderFlyInState() {
-	mTextures[0]->Render();
+	mTexture->Render();
 
 	for (int i = 0; i < sPaths[mCurrentPath].size() - 1; i++) {
 		Graphics::Instance()->DrawLine(
@@ -224,7 +234,7 @@ void Enemy::RenderFlyInState() {
 }
 
 void Enemy::RenderInFormationState() {
-	mTextures[sFormation->GetTick() % 2]->Render();
+	mTexture->Render();
 
 	for (int i = 0; i < sPaths[mCurrentPath].size() - 1; i++) {
 		Graphics::Instance()->DrawLine(
@@ -234,6 +244,22 @@ void Enemy::RenderInFormationState() {
 			sPaths[mCurrentPath][i + 1].y
 		);
 	}
+}
+
+void Enemy::RenderDeadState() {
+	if (mDeathAnimation->IsAnimating()) {
+		mDeathAnimation->Render();
+	}
+}
+
+void Enemy::HandleDeadState() {
+	if (mDeathAnimation->IsAnimating()) {
+		mDeathAnimation->Update();
+	}
+}
+
+void Enemy::CurrentPlayer(Player* player) {
+	sPlayer = player;
 }
 
 void Enemy::RenderStates() {
@@ -248,7 +274,6 @@ void Enemy::RenderStates() {
 		RenderDiveState();
 		break;
 	case Dead:
-		//TODO Render Death Texture in dead state
 		RenderDeadState();
 		break;
 
@@ -263,10 +288,11 @@ Enemy::Enemy(int path, int index, bool challenge) : mCurrentPath(path), mIndex(i
 	mCurrentWaypoint = 1;
 	Position(sPaths[mCurrentPath][0]);
 
-	mTextures[0] = nullptr;
-	mTextures[1] = nullptr;
+	mTexture = nullptr;
 
 	mSpeed = 450.0f;
+
+	mId = PhysicsManager::Instance()->RegisterEntity(this, PhysicsManager::CollisionLayers::Hostile);
 
 	mDeathAnimation = new AnimatedTexture("EnemyExplosion.png", 0, 0, 128, 128, 5, 1.0f, Animation::Layouts::Horizontal);
 	mDeathAnimation->Parent(this);
@@ -278,10 +304,9 @@ Enemy::Enemy(int path, int index, bool challenge) : mCurrentPath(path), mIndex(i
 Enemy::~Enemy() {
 	mTimer = nullptr;
 
-	for (auto texture : mTextures) {
-		delete texture;
-		texture = nullptr;
-	}
+	delete mTexture;
+	mTexture = nullptr;
+
 
 	delete mDeathAnimation;
 	mDeathAnimation = nullptr;

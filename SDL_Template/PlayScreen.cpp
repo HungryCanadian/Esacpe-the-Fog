@@ -17,7 +17,7 @@ PlayScreen::PlayScreen() {
 	mStartLabel->Parent(this);
 	mStartLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
-	mLevel = nullptr;
+	mLevel = new Level(mCurrentStage, mSideBar, mPlayer);
 	mLevelStartDelay = 1.0f;
 	mLevelStarted = false;
 
@@ -53,23 +53,23 @@ PlayScreen::~PlayScreen() {
 }
 
 void PlayScreen::StartNewGame() {
-	mSideBar->SetHighScore(3080);
-	mGameStarted = false;
-	mLevelStarted = false;
-	mLevelStartTimer = 0.0f;
-	mCurrentStage = 0;
 	mAudio->PlayMusic("/Music/Pirate 2.wav", 0);
 	Mix_VolumeMusic(12);
-
 	delete mPlayer;
 	mPlayer = new Player();
 	mPlayer->Parent(this);
 	mPlayer->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 	mPlayer->Active(false);
 
-	mSideBar->SetPlayerScore(mPlayer->Score());
+	mSideBar->SetHighScore(30000);
 	mSideBar->SetShips(mPlayer->Lives());
+	mSideBar->SetPlayerScore(mPlayer->Score());
 	mSideBar->SetLevel(0);
+
+	mGameStarted = false;
+	mLevelStarted = false;
+	mLevelStartTimer = 0.0f;
+	mCurrentStage = 0;
 
 
 }
@@ -98,9 +98,7 @@ void PlayScreen::Update() {
 			}
 		}
 		else {
-			//the level has started or is in session.
 			mLevel->Update();
-
 			if (mLevel->State() == Level::Finished) {
 				mLevelStarted = false;
 			}
@@ -109,13 +107,15 @@ void PlayScreen::Update() {
 		if (mCurrentStage > 0) {
 			mSideBar->Update();
 		}
+
 		mPlayer->Update();
+		mSideBar->SetPlayerScore(mPlayer->Score());
 	}
 	else {
-		mGameStarted = true;	
+		
+		mGameStarted = true;
+		
 	}
-
-
 }
 
 void PlayScreen::Render() {
