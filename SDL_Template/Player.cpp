@@ -143,7 +143,7 @@ void Player::AddScore(int change) {
 
 bool Player::IgnoreCollisions()
 {
-	return !mVisible || mAnimating;
+	return !mVisible || mAnimating || !Active();
 }
 
 void Player::Hit(PhysEntity* other) {

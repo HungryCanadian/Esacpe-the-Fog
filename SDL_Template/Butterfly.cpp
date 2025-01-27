@@ -1,4 +1,6 @@
 #include "Butterfly.h"
+#include "BoxCollider.h"
+#include "AudioManager.h"
 
 std::vector<std::vector<Vector2>> Butterfly::sDivePaths;
 
@@ -146,22 +148,19 @@ void Butterfly::CreateDivePaths() {
 	delete path;
 }
 
-Vector2 Butterfly::LocalFormationPosition() {
+Vector2 Butterfly::LocalFormationPosition()
+{
 	Vector2 retVal;
-
 	int dir = mIndex % 2 == 0 ? -1 : 1;
 
 	retVal.x = (sFormation->GridSize().x + sFormation->GridSize().x * 2 * (mIndex / 4)) * (float)dir;
 	retVal.y = sFormation->GridSize().y * ((mIndex % 4) / 2);
 
-
 	return retVal;
 }
 
-void Butterfly::Dive(int type) {
-	mEscort = type != 0;
-
-	Enemy::Dive();
+bool Butterfly::IgnoreCollisions() {
+	return !InDeathAnimation() || !Active();
 }
 
 void Butterfly::HandleDiveState() {
@@ -170,8 +169,9 @@ void Butterfly::HandleDiveState() {
 	if (mEscort) {
 		currentPath += 2;
 	}
+
 	if (mCurrentWaypoint < sDivePaths[currentPath].size()) {
-		//Follow Dive path
+		// follow dive path
 		Vector2 waypointPos = mDiveStartPosition + sDivePaths[currentPath][mCurrentWaypoint];
 		Vector2 dist = waypointPos - Position();
 
@@ -179,74 +179,53 @@ void Butterfly::HandleDiveState() {
 		Rotation(atan2(dist.y, dist.x) * RAD_TO_DEG + 90.0f);
 
 		if ((waypointPos - Position()).MagnitudeSqr() < EPSILON * mSpeed / 25.0f) {
-			mCurrentWaypoint++;
+			mCurrentWaypoint += 1;
+		}
+
+		if (mCurrentWaypoint == sDivePaths[currentPath].size()) {
+			Position(Vector2(WorldFormationPosition().x, 20.0f));
 		}
 	}
 	else {
-		//Return to formation
+		// return to formation
 		Vector2 dist = WorldFormationPosition() - Position();
 
 		Translate(dist.Normalized() * mSpeed * mTimer->DeltaTime(), World);
 		Rotation(atan2(dist.y, dist.x) * RAD_TO_DEG + 90.0f);
 
-		if (dist.MagnitudeSqr() < EPSILON * mSpeed / 25) {
+		if (dist.MagnitudeSqr() < EPSILON * mSpeed / 25.0f) {
 			JoinFormation();
 		}
 	}
 }
 
-void Butterfly::HandleDeadState() {
-
-}
-
 void Butterfly::RenderDiveState() {
-	mTextures[0]->Render();
-
-	//debug render of the dive path
-	//TODO: Comment out the below for finished product!
-	int currentPath = mIndex % 2;
-
-	if (mEscort) {
-		currentPath += 2;
-	}
-	for (int i = 0; i < sDivePaths[currentPath].size() - 1; i++) {
-		Graphics::Instance()->DrawLine(
-			mDiveStartPosition.x + sDivePaths[currentPath][i].x,
-			mDiveStartPosition.y + sDivePaths[currentPath][i].y,
-			mDiveStartPosition.x + sDivePaths[currentPath][i + 1].x,
-			mDiveStartPosition.y + sDivePaths[currentPath][i + 1].y
-		);
-	}
-
-	//debug render of the return path
-	//TODO: If we encounter weird behaviours with the return path drawing
-	//COME BACK HERE
-	Vector2 finalPos = WorldFormationPosition();
-	auto currentDivePath = sDivePaths[currentPath];
-	Vector2 pathEndPos = mDiveStartPosition + currentDivePath[currentDivePath.size() - 1];
-
-	Graphics::Instance()->DrawLine(
-		pathEndPos.x,
-		pathEndPos.y,
-		finalPos.x,
-		finalPos.y
-	);
+	mTexture->Render();
 }
 
-void Butterfly::RenderDeadState() {
+void Butterfly::Dive(int type) {
+	mEscort = type != 0;
 
+	Enemy::Dive();
+}
+
+void Butterfly::Hit(PhysEntity* other) {
+	AudioManager::Instance()->PlaySFX("SFX/ButterflyDestroyed.wav", 0, 3);
+	sPlayer->AddScore(mCurrentState == Enemy::InFormation ? 80 : 160);
+	Enemy::Hit(other);
 }
 
 Butterfly::Butterfly(int path, int index, bool challenge) : Enemy(path, index, challenge) {
-	mTextures[0] = new Texture("AnimatedEnemies.png", 0, 0, 52, 40);
-	mTextures[1] = new Texture("AnimatedEnemies.png", 52, 0, 52, 40);
-
-	for (auto texture : mTextures) {
-		texture->Parent(this);
-		texture->Position(Vec2_Zero);
-	}
+	mTexture = new GLTexture("Pirate.png");
+	mTexture->Parent(this);
+	mTexture->Position(Vec2_Zero);
+	mTexture->Scale(Vector2(0.5f, 0.5f));
 
 	mType = Enemy::Butterfly;
+
+	AddCollider(new BoxCollider(Vector2(16.0f, 67.0f)));
+	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2(9.0f, 5.0f));
+	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2(-9.0f, 5.0f));
 }
 
 Butterfly::~Butterfly() {

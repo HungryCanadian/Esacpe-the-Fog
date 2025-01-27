@@ -33,7 +33,7 @@ private:
 
 	Texture* mLevel;
 	Texture* mLevelExtrude;
-	Texture* mLevelNumber;
+	Scoreboard* mLevelNumber;
 	Texture* mLevelNumberExtrude;
 	Scoreboard* mHighScoreBoard;
 

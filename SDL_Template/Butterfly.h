@@ -10,6 +10,10 @@ public:
 
 	void Dive(int type = 0) override;
 
+	void Hit(PhysEntity* other) override;
+
+	virtual bool IgnoreCollisions() override;
+
 private:
 	static std::vector<std::vector<Vector2>> sDivePaths;
 
@@ -18,9 +22,7 @@ private:
 	Vector2 LocalFormationPosition() override;
 
 	void HandleDiveState() override;
-	void HandleDeadState() override;
 
 	void RenderDiveState() override;
-	void RenderDeadState() override;
 
 };

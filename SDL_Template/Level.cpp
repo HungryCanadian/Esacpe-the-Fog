@@ -15,11 +15,11 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 
 	mLabelTimer = 0.0f;
 
-	mStageLabel = new Texture("Level", "Pixel.otf", 32, { 75,75,200 });
+	mStageLabel = new Texture("Level", "Pixel.otf", 52, { 0,0,0 });
 	mStageLabel->Parent(this);
-	mStageLabel->Position(Graphics::SCREEN_WIDTH * 0.35f, Graphics::SCREEN_HEIGHT * 0.5f);
+	mStageLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.4f);
 
-	mStageNumber = new Scoreboard({ 75,75,200 });
+	mStageNumber = new Scoreboard({ 75,75,75 });
 	mStageNumber->Score(mStage);
 	mStageNumber->Parent(this);
 	mStageNumber->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
@@ -27,9 +27,9 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mStageLabelOnScreen = 0.0f;
 	mStageLabelOffScreen = 1.5f;
 
-	mReadyLabel = new Texture("Get Ready", "Pixel.otf", 32, { 150,0,0 });
+	mReadyLabel = new Texture("Get Ready", "Pixel.otf", 52, { 150,0,0 });
 	mReadyLabel->Parent(this);
-	mReadyLabel->Position(Graphics::SCREEN_WIDTH * 0.4f, Graphics::SCREEN_HEIGHT * 0.5f);
+	mReadyLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.4f);
 
 	mReadyLabelOnScreen = mStageLabelOffScreen;
 	mReadyLabelOffScreen = mReadyLabelOnScreen + 3.0f;
@@ -50,8 +50,6 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mCurrentState = Running;
 
 	mButterflyCount = 0;
-	mWaspCount = 0;
-	mBossCount = 0;
 
 	std::string fullPath = SDL_GetBasePath();
 	fullPath.append("Data/Level1.xml");
@@ -80,6 +78,8 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mSkipFirstbutterfly = false;
 	mButterflyDiveDelay = 1.0f;
 	mButterflyDiveTimer = 0.0f;
+
+	Enemy::CurrentPlayer(mPlayer);
 }
 
 Level::~Level() {
@@ -118,18 +118,15 @@ Level::LevelStates Level::State() {
 
 void Level::HandleStartLabels() {
 	mLabelTimer += mTimer->DeltaTime();
-
 	if (mLabelTimer >= mStageLabelOffScreen) {
-		mPlayer->Active(true);
-		mPlayer->Visible(true);
 		if (mStage > 1) {
 			StartStage();
 		}
 		else {
-			//GET READY label only shows on stage 1 - change this?
 			if (mLabelTimer >= mReadyLabelOffScreen) {
 				StartStage();
-
+				mPlayer->Active(true);
+				mPlayer->Visible(true);
 			}
 		}
 	}
@@ -152,25 +149,20 @@ void Level::HandlePlayerDeath() {
 	if (!mPlayer->IsAnimating()) {
 		if (mPlayer->Lives() > 0) {
 			if (mRespawnTimer == 0.0f) {
-				//The player has finished their death animation and we want them to respawn.
-				//Hide them until the respawn timer has finished.
 				mPlayer->Visible(false);
 			}
 
 			mRespawnTimer += mTimer->DeltaTime();
 			if (mRespawnTimer >= mRespawnDelay) {
-				//This is when we respawn the player
 				mPlayer->Active(true);
 				mPlayer->Visible(true);
 				mPlayerHit = false;
 			}
 		}
 		else {
-			//this is GAME OVER!
 			if (mGameOverTimer == 0.0f) {
 				mPlayer->Visible(false);
 			}
-
 			mGameOverTimer += mTimer->DeltaTime();
 			if (mGameOverTimer >= mGameOverDelay) {
 				mCurrentState = GameOver;
@@ -181,7 +173,6 @@ void Level::HandlePlayerDeath() {
 
 void Level::HandleEnemySpawning() {
 	mSpawnTimer += mTimer->DeltaTime();
-
 	if (mSpawnTimer >= mSpawnDelay) {
 		XMLElement* element = mSpawningPatterns.FirstChildElement("Level")->FirstChild()->NextSiblingElement();
 		bool spawned = false;
@@ -195,8 +186,6 @@ void Level::HandleEnemySpawning() {
 				int path = element->IntAttribute("path");
 				XMLElement* child = element->FirstChildElement();
 
-				//This for loop is always going to give us the next/last child
-				//Based on our FlyInIndex
 				for (int i = 0; i < mCurrentFlyInIndex && child != nullptr; i++) {
 					child = child->NextSiblingElement();
 				}
@@ -207,12 +196,10 @@ void Level::HandleEnemySpawning() {
 
 					if (type.compare("Butterfly") == 0) {
 						if (!mChallengeStage) {
-							//Add Butterfly to formation
 							mFormationButterflies[index] = new Butterfly(path, index, false);
-							mButterflyCount++;
+							mButterflyCount += 1;
 						}
 						else {
-							//TODO: Change the challenge boolean to true once Challenge logic is implemented!!!
 							mEnemies.push_back(new Butterfly(path, index, false));
 						}
 					}
@@ -224,35 +211,32 @@ void Level::HandleEnemySpawning() {
 		}
 
 		if (!priorityFound) {
-			//no priorities found mean no more Spawn elements!
+			// no priorities found means no more Spawn elements
 			mSpawningFinished = true;
 		}
 		else {
 			if (!spawned) {
-				//We have Spawn elements waiting BUT we didn't spawn anything
+				// We have Spawn elements waiting, but we didn't spawn anything
 				if (!EnemyFlyingIn()) {
-					mCurrentFlyInPriority++;
+					mCurrentFlyInPriority += 1;
 					mCurrentFlyInIndex = 0;
 				}
 			}
 			else {
-				//We haven't finished spawning our element's enemies, next index!
-				mCurrentFlyInIndex++;
+				// We haven't finished spawning this element's enemies, next index!
+				mCurrentFlyInIndex += 1;
 			}
 		}
-
 		mSpawnTimer = 0.0f;
 	}
 }
 
 bool Level::EnemyFlyingIn() {
-	for (Butterfly* butterfly : mFormationButterflies) {
-		if (butterfly != nullptr &&
-			butterfly->CurrentState() == Enemy::FlyIn) {
+	for (Butterfly* b : mFormationButterflies) {
+		if (b != nullptr && b->CurrentState() == Enemy::FlyIn) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -351,18 +335,14 @@ void Level::Update() {
 
 void Level::Render() {
 	if (!mStageStarted) {
-		if (mLabelTimer > mStageLabelOnScreen &&
-			mLabelTimer < mStageLabelOffScreen) {
-
+		if (mLabelTimer > mStageLabelOnScreen && mLabelTimer < mStageLabelOffScreen) {
 			mStageLabel->Render();
 			mStageNumber->Render();
 		}
-
 		else if (mLabelTimer > mReadyLabelOnScreen && mLabelTimer < mReadyLabelOffScreen) {
 			mReadyLabel->Render();
 		}
 	}
-
 	else {
 		if (!mChallengeStage) {
 			for (Butterfly* butterfly : mFormationButterflies) {
@@ -371,9 +351,7 @@ void Level::Render() {
 				}
 			}
 		}
-
 		else {
-
 			for (auto enemy : mEnemies) {
 				enemy->Render();
 			}
