@@ -36,5 +36,13 @@ private:
 
 	Vector2 mGridSize;
 
+	Vector2 mSpawnMin;  // Min x, y for random spawn boundaries
+	Vector2 mSpawnMax;  // Max x, y for random spawn boundaries
+
+	float RandomFloat(float min, float max);
+
+	// New function to spawn ships randomly within the boundaries
+	void RandomlySpawnShips();
+
 	bool mLocked;
 };

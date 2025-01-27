@@ -1,4 +1,3 @@
-
 #pragma once
 #include "AnimatedTexture.h"
 #include "BezierPath.h"
@@ -9,7 +8,7 @@
 class Enemy : public PhysEntity {
 public:
 	enum States { FlyIn, InFormation, Diving, Dead };
-	enum Types { Butterfly, Wasp, Boss };
+	enum Types { Butterfly, Boss };
 
 	static void CreatePaths();
 	static void SetFormation(Formation* formation);
