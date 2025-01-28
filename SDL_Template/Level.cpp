@@ -51,23 +51,6 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 
 	mButterflyCount = 0;
 
-	std::string fullPath = SDL_GetBasePath();
-	fullPath.append("Data/Level1.xml");
-	mSpawningPatterns.LoadFile(fullPath.c_str());
-
-	mChallengeStage = mSpawningPatterns.FirstChildElement("Level")->FirstChildElement()->BoolAttribute("value");
-	if (!mChallengeStage) {
-		//Create our Formation
-		//Initialize our Enemy Arrays
-		mFormation = new Formation();
-		mFormation->Position(Graphics::SCREEN_WIDTH * 0.4f, 150.0f);
-		Enemy::SetFormation(mFormation);
-
-		for (int i = 0; i < MAX_BUTTERFLIES; i++) {
-			mFormationButterflies[i] = nullptr;
-		}
-
-	}
 	mCurrentFlyInPriority = 0;
 	mCurrentFlyInIndex = 0;
 	mSpawnDelay = 0.2f;
@@ -87,30 +70,18 @@ Level::~Level() {
 	mSideBar = nullptr;
 	mPlayer = nullptr;
 
-
 	delete mStageLabel;
-	mStageLabel = nullptr;
 	delete mStageNumber;
-	mStageNumber = nullptr;
 	delete mReadyLabel;
-	mReadyLabel = nullptr;
-
 	delete mGameOverLabel;
-	mGameOverLabel = nullptr;
 
-	delete mFormation;
-	mFormation = nullptr;
-
+	// Clear out the random enemies
 	for (auto enemy : mEnemies) {
 		delete enemy;
-		enemy = nullptr;
 	}
-	for (int i = 0; i < MAX_BUTTERFLIES; i++) {
-		delete mFormationButterflies[i];
-		mFormationButterflies[i] = nullptr;
-	}
-
+	mEnemies.clear();
 }
+
 
 Level::LevelStates Level::State() {
 	return mCurrentState;
@@ -142,6 +113,7 @@ void Level::HandleCollisions() {
 			mRespawnTimer = 0.0f;
 			mPlayer->Active(false);
 		}
+		mSideBar->SetShips(mPlayer->Lives());
 	}
 }
 
@@ -171,132 +143,74 @@ void Level::HandlePlayerDeath() {
 	}
 }
 
+float Level::RandomFloat(float min, float max) {
+	float scale = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // Random number between 0 and 1
+	return min + scale * (max - min);  // Scale it to the desired range
+}
+
 void Level::HandleEnemySpawning() {
 	mSpawnTimer += mTimer->DeltaTime();
 	if (mSpawnTimer >= mSpawnDelay) {
-		XMLElement* element = mSpawningPatterns.FirstChildElement("Level")->FirstChild()->NextSiblingElement();
 		bool spawned = false;
-		bool priorityFound = false;
+		if (!mSpawningFinished) {
+			if (mEnemies.size() < MAX_BUTTERFLIES) {
+				// Set the spawn boundaries
+				Vector2 minBoundary(75.0f, -75.0f); // Top of the screen
+				Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
 
-		while (element != nullptr) {
-			int priority = element->IntAttribute("priority");
+				
 
-			if (mCurrentFlyInPriority == priority) {
-				priorityFound = true;
-				int path = element->IntAttribute("path");
-				XMLElement* child = element->FirstChildElement();
+				// Randomly calculate the position within the boundaries
+				float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+				float randY = RandomFloat(minBoundary.y, maxBoundary.y);
+				// Create a random Butterfly and spawn at a random location
+				Butterfly* newEnemy = new Butterfly(0, false);
 
-				for (int i = 0; i < mCurrentFlyInIndex && child != nullptr; i++) {
-					child = child->NextSiblingElement();
-				}
-
-				if (child != nullptr) {
-					std::string type = child->Attribute("type");
-					int index = child->IntAttribute("index");
-
-					if (type.compare("Butterfly") == 0) {
-						if (!mChallengeStage) {
-							mFormationButterflies[index] = new Butterfly(path, index, false);
-							mButterflyCount += 1;
-						}
-						else {
-							mEnemies.push_back(new Butterfly(path, index, false));
-						}
-					}
-					spawned = true;
-				}
+				newEnemy->RandomlySpawn(minBoundary, maxBoundary);
+				std::cout << "Butterfly spawned at position: "
+					<< randX << ", " << randY << std::endl;
+				mEnemies.push_back(newEnemy);
+				
+				spawned = true;
 			}
-
-			element = element->NextSiblingElement();
 		}
 
-		if (!priorityFound) {
-			// no priorities found means no more Spawn elements
+		if (!spawned) {
+			// Set flag for finishing spawning
 			mSpawningFinished = true;
 		}
-		else {
-			if (!spawned) {
-				// We have Spawn elements waiting, but we didn't spawn anything
-				if (!EnemyFlyingIn()) {
-					mCurrentFlyInPriority += 1;
-					mCurrentFlyInIndex = 0;
-				}
-			}
-			else {
-				// We haven't finished spawning this element's enemies, next index!
-				mCurrentFlyInIndex += 1;
-			}
-		}
+
 		mSpawnTimer = 0.0f;
 	}
 }
 
-bool Level::EnemyFlyingIn() {
-	for (Butterfly* b : mFormationButterflies) {
-		if (b != nullptr && b->CurrentState() == Enemy::FlyIn) {
-			return true;
-		}
-	}
-	return false;
-}
 
-void Level::HandleEnemyFormation() {
-	mFormation->Update();
-
-	bool levelCleared = mSpawningFinished;
-
-	for (Butterfly* butterfly : mFormationButterflies) {
-		if (butterfly != nullptr) {
-			butterfly->Update();
-			if (butterfly->CurrentState() != Enemy::Dead || butterfly->InDeathAnimation()) {
-				levelCleared = false;
-			}
-		}
-	}
-
-	if (!mFormation->Locked()) {
-		if (mButterflyCount == MAX_BUTTERFLIES && mWaspCount == MAX_WASPS && mBossCount == MAX_BOSSES) {
-			if (!EnemyFlyingIn()) {
-				mFormation->Lock();
-			}
-		}
-	}
-	else {
-		HandleEnemyDiving();
-	}
-
-	if (levelCleared) {
-		mCurrentState = Finished;
-	}
-
-}
-
-void Level::HandleEnemyDiving() {
-	if (mDivingButterfly == nullptr) {
-		mButterflyDiveTimer += mTimer->DeltaTime();
-
-		if (mButterflyDiveTimer >= mButterflyDiveDelay) {
-			bool skipped = false;
-
-			for (int i = MAX_BUTTERFLIES - 1; i >= 0; i--) {
-				if (mFormationButterflies[i] != nullptr && mFormationButterflies[i]->CurrentState() == Enemy::InFormation) {
-					if (!mSkipFirstbutterfly || (mSkipFirstbutterfly && skipped)) {
-						mDivingButterfly = mFormationButterflies[i];
-						mDivingButterfly->Dive();
-						mSkipFirstbutterfly = !mSkipFirstbutterfly;
-						break;
-					}
-				}
-			}
-			mButterflyDiveTimer = 0.0f;
-		}
-	}
-	else {
-		if (mDivingButterfly->CurrentState() != Enemy::Diving) {
-			mDivingButterfly = nullptr;
-		}
-	}
-}
+//void Level::HandleEnemyDiving() {
+//	if (mDivingButterfly == nullptr) {
+//		mButterflyDiveTimer += mTimer->DeltaTime();
+//
+//		if (mButterflyDiveTimer >= mButterflyDiveDelay) {
+//			bool skipped = false;
+//
+//			for (int i = MAX_BUTTERFLIES - 1; i >= 0; i--) {
+//				if (mFormationButterflies[i] != nullptr && mFormationButterflies[i]->CurrentState() == Enemy::InFormation) {
+//					if (!mSkipFirstbutterfly || (mSkipFirstbutterfly && skipped)) {
+//						mDivingButterfly = mFormationButterflies[i];
+//						mDivingButterfly->Dive();
+//						mSkipFirstbutterfly = !mSkipFirstbutterfly;
+//						break;
+//					}
+//				}
+//			}
+//			mButterflyDiveTimer = 0.0f;
+//		}
+//	}
+//	else {
+//		if (mDivingButterfly->CurrentState() != Enemy::Diving) {
+//			mDivingButterfly = nullptr;
+//		}
+//	}
+//}
 
 
 
@@ -307,16 +221,12 @@ void Level::Update() {
 	}
 	else {
 		if (!mSpawningFinished) {
-			HandleEnemySpawning();
+			HandleEnemySpawning();  // Handles the random spawning logic now
 		}
 
-		if (!mChallengeStage) {
-			HandleEnemyFormation();
-		}
-		else {
-			for (auto enemy : mEnemies) {
-				enemy->Update();
-			}
+		// Update all enemies, they are now stored in mEnemies
+		for (auto enemy : mEnemies) {
+			enemy->Update();
 		}
 
 		HandleCollisions();
@@ -325,13 +235,14 @@ void Level::Update() {
 			HandlePlayerDeath();
 		}
 		else {
-			//TODO: Temporary logic until enemeies implemented
+			// Temporary logic for level ending
 			if (InputManager::Instance()->KeyPressed(SDL_SCANCODE_N)) {
 				mCurrentState = Finished;
 			}
 		}
 	}
 }
+
 
 void Level::Render() {
 	if (!mStageStarted) {
@@ -344,17 +255,9 @@ void Level::Render() {
 		}
 	}
 	else {
-		if (!mChallengeStage) {
-			for (Butterfly* butterfly : mFormationButterflies) {
-				if (butterfly != nullptr) {
-					butterfly->Render();
-				}
-			}
-		}
-		else {
-			for (auto enemy : mEnemies) {
-				enemy->Render();
-			}
+		// Render all enemies in the random spawn list
+		for (auto enemy : mEnemies) {
+			enemy->Render();
 		}
 
 		if (mPlayerHit) {

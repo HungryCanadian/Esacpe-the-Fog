@@ -3,21 +3,24 @@
 
 class Butterfly : public Enemy {
 public:
-	Butterfly(int path, int index, bool challenge);
+	Butterfly(int index, bool challenge);
 	~Butterfly();
 
 	static void CreateDivePaths();
 
-	void Dive(int type = 0) override;
+	//void Dive() override;
 
 	void Hit(PhysEntity* other) override;
 
 	virtual bool IgnoreCollisions() override;
+	void RandomlySpawn(Vector2 minBoundary, Vector2 maxBoundary);
 
 private:
-	static std::vector<std::vector<Vector2>> sDivePaths;
+	//static std::vector<std::vector<Vector2>> sDivePaths;
 
-	bool mEscort;
+	//bool mEscort;
+
+	
 
 	Vector2 LocalFormationPosition() override;
 

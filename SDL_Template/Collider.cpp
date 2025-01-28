@@ -8,7 +8,7 @@ void Collider::SetDebugTexture(Texture * tex) {
 
 Collider::Collider(ColliderType type)
 	: mType(type) {
-	mDebugTexture = nullptr;
+	mDebugTexture = new GLTexture("BoxCollider.png");
 }
 
 Collider::~Collider() {

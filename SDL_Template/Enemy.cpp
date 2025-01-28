@@ -2,117 +2,9 @@
 #include "BoxCollider.h"
 #include "PhysicsManager.h"
 
-std::vector<std::vector<Vector2>> Enemy::sPaths;
 Player * Enemy::sPlayer = nullptr;
 Formation* Enemy::sFormation = nullptr;
 
-void Enemy::CreatePaths() {
-	int screenMidPoint = (int)(Graphics::Instance()->SCREEN_WIDTH * 0.4f);
-
-	int currentPath = 0;
-	BezierPath* path = new BezierPath();
-	path->AddCurve({
-		Vector2(screenMidPoint + 50.0f, -10.0f),
-		Vector2(screenMidPoint + 50.0f, -20.0f),
-		Vector2(screenMidPoint + 50.0f, 30.0f),
-		Vector2(screenMidPoint + 50.0f, 20.0f) }, 1);
-	path->AddCurve({
-		Vector2(screenMidPoint + 50.0f, 20.0f),
-		Vector2(screenMidPoint + 50.0f, 100.0f),
-		Vector2(75.0f, 325.0f),
-		Vector2(75.0f, 425.0f) }, 25);
-	path->AddCurve({
-		Vector2(75.0f, 425.0f),
-		Vector2(75.0f, 650.0f),
-		Vector2(350.0f, 650.0f),
-		Vector2(350.0f, 425.0f) }, 25);
-
-	sPaths.push_back(std::vector<Vector2>());
-	path->Sample(&sPaths[currentPath]);
-	delete path;
-
-	currentPath = 1;
-	path = new BezierPath();
-	int fullScreen = screenMidPoint * 2;
-	path->AddCurve({
-		Vector2(screenMidPoint - 50.0f, -10.0f),
-		Vector2(screenMidPoint - 50.0f, -20.0f),
-		Vector2(screenMidPoint - 50.0f, 30.0f),
-		Vector2(screenMidPoint - 50.0f, 20.0f) }, 1);
-	path->AddCurve({
-		Vector2(screenMidPoint - 50.0f, 20.0f),
-		Vector2(screenMidPoint - 50.0f, 100.0f),
-		Vector2(fullScreen - 75.0f, 325.0f),
-		Vector2(fullScreen - 75.0f, 425.0f) }, 25);
-	path->AddCurve({
-		Vector2(fullScreen - 75.0f, 425.0f),
-		Vector2(fullScreen - 75.0f, 650.0f),
-		Vector2(fullScreen - 350.0f, 650.0f),
-		Vector2(fullScreen - 350.0f, 425.0f) }, 25);
-
-	sPaths.push_back(std::vector<Vector2>());
-	path->Sample(&sPaths[currentPath]);
-	delete path;
-
-	currentPath = 2;
-	float temp = screenMidPoint - 100.0f;
-
-	path = new BezierPath();
-	path->AddCurve({
-		Vector2(-40.0f, 720.0f),
-		Vector2(-50.0f, 720.0f),
-		Vector2(10.0f, 720.0f),
-		Vector2(0.0f, 720.0f) }, 1);
-	path->AddCurve({
-		Vector2(0.0f, 720.0f),
-		Vector2(200.0f, 720.0f),
-		Vector2(temp, 500.0f),
-		Vector2(temp, 400.0f) }, 15);
-	path->AddCurve({
-		Vector2(temp, 400.0f),
-		Vector2(temp, 200.0f),
-		Vector2(40.0f, 200.0f),
-		Vector2(40.0f, 400.0f) }, 15);
-	path->AddCurve({
-		Vector2(40.0f, 400.0f),
-		Vector2(40.0f, 500.0f),
-		Vector2(temp - 120.0f, 600.0f),
-		Vector2(temp - 40.0f, 440.0f) }, 15);
-
-	sPaths.push_back(std::vector<Vector2>());
-	path->Sample(&sPaths[currentPath]);
-	delete path;
-
-	currentPath = 3;
-	temp = screenMidPoint + 60.0f;
-	float temp2 = fullScreen - 40.0f;
-
-	path = new BezierPath();
-	path->AddCurve({
-		Vector2(temp2 + 40.0f, 720.0f),
-		Vector2(temp2 + 50.0f, 720.0f),
-		Vector2(temp2 + 10.0f, 720.0f),
-		Vector2(temp2, 720.0f) }, 1);
-	path->AddCurve({
-		Vector2(temp2, 720.0f),
-		Vector2(temp2 - 200.0f, 720.0f),
-		Vector2(temp, 500.0f),
-		Vector2(temp, 400.0f) }, 15);
-	path->AddCurve({
-		Vector2(temp, 400.0f),
-		Vector2(temp, 200.0f),
-		Vector2(temp2 - 40.0f, 200.0f),
-		Vector2(temp2 - 40.0f, 400.0f) }, 15);
-	path->AddCurve({
-		Vector2(temp2 - 40.0f, 400.0f),
-		Vector2(temp2 - 40.0f, 500.0f),
-		Vector2(temp + 120.0f, 600.0f),
-		Vector2(temp + 40.0f, 440.0f) }, 15);
-
-	sPaths.push_back(std::vector<Vector2>());
-	path->Sample(&sPaths[currentPath]);
-	delete path;
-}
 
 void Enemy::SetFormation(Formation* formation) {
 	sFormation = formation;
@@ -159,32 +51,6 @@ int Enemy::Index() {
 	return mIndex;
 }
 
-void Enemy::HandleFlyInState() {
-	if (mCurrentWaypoint < sPaths[mCurrentPath].size()) {
-		Vector2 dist = sPaths[mCurrentPath][mCurrentWaypoint] - Position();
-		Translate(dist.Normalized() * mSpeed * mTimer->DeltaTime(), World);
-		Rotation(atan2(dist.y, dist.x) * RAD_TO_DEG + 90.0f); //This was Rotate instead of Rotation (if beyblade mode still exists this wasnt it)
-
-		if ((sPaths[mCurrentPath][mCurrentWaypoint] - Position()).MagnitudeSqr() < EPSILON * mSpeed / 25.0f) {
-			mCurrentWaypoint++;
-		}
-
-		if (mCurrentWaypoint >= sPaths[mCurrentPath].size()) {
-			//we have reached the end of our flyin path.
-			PathComplete();
-		}
-	}
-	else {
-		Vector2 dist = WorldFormationPosition() - Position();
-		Translate(dist.Normalized() * mSpeed * mTimer->DeltaTime(), World);
-		Rotation(atan2(dist.y, dist.x) * RAD_TO_DEG + 90.0f);
-
-		if (dist.MagnitudeSqr() < EPSILON * mSpeed / 25.0f) {
-			FlyInComplete();
-		}
-	}
-}
-
 void Enemy::HandleInFormationState() {
 	Position(LocalFormationPosition());
 
@@ -204,9 +70,6 @@ void Enemy::HandleInFormationState() {
 
 void Enemy::HandleStates() {
 	switch (mCurrentState) {
-	case FlyIn:
-		HandleFlyInState();
-		break;
 	case InFormation:
 		HandleInFormationState();
 		break;
@@ -220,30 +83,8 @@ void Enemy::HandleStates() {
 	}
 }
 
-void Enemy::RenderFlyInState() {
-	mTexture->Render();
-
-	for (int i = 0; i < sPaths[mCurrentPath].size() - 1; i++) {
-		Graphics::Instance()->DrawLine(
-			sPaths[mCurrentPath][i].x,
-			sPaths[mCurrentPath][i].y,
-			sPaths[mCurrentPath][i + 1].x,
-			sPaths[mCurrentPath][i + 1].y
-		);
-	}
-}
-
 void Enemy::RenderInFormationState() {
 	mTexture->Render();
-
-	for (int i = 0; i < sPaths[mCurrentPath].size() - 1; i++) {
-		Graphics::Instance()->DrawLine(
-			sPaths[mCurrentPath][i].x,
-			sPaths[mCurrentPath][i].y,
-			sPaths[mCurrentPath][i + 1].x,
-			sPaths[mCurrentPath][i + 1].y
-		);
-	}
 }
 
 void Enemy::RenderDeadState() {
@@ -264,9 +105,6 @@ void Enemy::CurrentPlayer(Player* player) {
 
 void Enemy::RenderStates() {
 	switch (mCurrentState) {
-	case FlyIn:
-		RenderFlyInState();
-		break;
 	case InFormation:
 		RenderInFormationState();
 		break;
@@ -280,16 +118,23 @@ void Enemy::RenderStates() {
 	}
 }
 
-Enemy::Enemy(int path, int index, bool challenge) : mCurrentPath(path), mIndex(index), mChallengeStage(challenge) {
+// Random float function to generate positions within a range
+float Enemy::RandomFloat(float min, float max) {
+	return min + static_cast<float>(std::rand()) / (static_cast<float>(RAND_MAX / (max - min)));
+}
+
+// Method to randomly spawn the enemy within a given boundary
+void Enemy::RandomlySpawn(Vector2 minBoundary, Vector2 maxBoundary) {
+	// Generate random position within the boundaries
+	float randomX = RandomFloat(minBoundary.x, maxBoundary.x);
+	float randomY = RandomFloat(minBoundary.y, maxBoundary.y);
+	Position(Vector2(randomX, randomY));  // Set the enemy's position
+}
+
+
+Enemy::Enemy(int index, bool challenge) : mIndex(index), mChallengeStage(challenge) {
 	mTimer = Timer::Instance();
-
-	mCurrentState = FlyIn;
-
-	mCurrentWaypoint = 1;
-	Position(sPaths[mCurrentPath][0]);
-
 	mTexture = nullptr;
-
 	mSpeed = 450.0f;
 
 	mId = PhysicsManager::Instance()->RegisterEntity(this, PhysicsManager::CollisionLayers::Hostile);
@@ -299,6 +144,9 @@ Enemy::Enemy(int path, int index, bool challenge) : mCurrentPath(path), mIndex(i
 	mDeathAnimation->Position(Vec2_Zero);
 	mDeathAnimation->SetWrapMode(Animation::WrapModes::Once);
 
+	Vector2 minBoundary(-100.0f, 300.0f);  // Example minimum boundary
+	Vector2 maxBoundary(800.0f, 600.0f);   // Example maximum boundary
+	RandomlySpawn(minBoundary, maxBoundary);
 }
 
 Enemy::~Enemy() {
@@ -320,12 +168,12 @@ bool Enemy::InDeathAnimation() {
 	return mDeathAnimation->IsAnimating();
 }
 
-void Enemy::Dive(int type) {
-	Parent(nullptr);
-	mCurrentState = Diving;
-	mDiveStartPosition = Position();
-	mCurrentWaypoint = 1;
-}
+//void Enemy::Dive(int type) {
+//	Parent(nullptr);
+//	mCurrentState = Diving;
+//	mDiveStartPosition = Position();
+//	mCurrentWaypoint = 1;
+//}
 
 void Enemy::Update() {
 	if (Active()) {

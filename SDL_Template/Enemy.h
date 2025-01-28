@@ -7,18 +7,17 @@
 
 class Enemy : public PhysEntity {
 public:
-	enum States { FlyIn, InFormation, Diving, Dead };
+	enum States { InFormation, Diving, Dead };
 	enum Types { Butterfly, Boss };
 
-	static void CreatePaths();
 	static void SetFormation(Formation* formation);
 
 	bool InDeathAnimation();
 
-	Enemy(int path, int index, bool challenge);
+	Enemy(int index, bool challenge);
 	virtual ~Enemy();
 
-	virtual void Dive(int type = 0);
+	//virtual void Dive();
 
 	States CurrentState();
 	static void CurrentPlayer(Player* player);
@@ -32,9 +31,9 @@ public:
 	void Update() override;
 	void Render() override;
 
+	void RandomlySpawn(Vector2 minBoundary, Vector2 maxBoundary);
 protected:
 	static Formation* sFormation;
-	static std::vector<std::vector<Vector2>> sPaths;
 	static Player* sPlayer;
 	Timer* mTimer;
 
@@ -64,19 +63,23 @@ protected:
 	virtual Vector2 WorldFormationPosition();
 	virtual Vector2 LocalFormationPosition() = 0;
 
-	virtual void HandleFlyInState();
 	virtual void HandleInFormationState();
 	virtual void HandleDiveState() = 0;
 	virtual void HandleDeadState();
 
 	void HandleStates();
 
-	virtual void RenderFlyInState();
 	virtual void RenderInFormationState();
 	virtual void RenderDiveState() = 0;
 	virtual void RenderDeadState();
 
 	void RenderStates();
+
+	// Function to generate random float between min and max
+	float RandomFloat(float min, float max);
+
+	// Function to set random spawn position within a boundary
+	
 private:
 	Enemy* mEnemy;
 };

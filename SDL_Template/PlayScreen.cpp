@@ -27,7 +27,7 @@ PlayScreen::PlayScreen() {
 	mPlaySpace->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
 	Butterfly::CreateDivePaths();
-	Enemy::CreatePaths();
+
 }
 
 PlayScreen::~PlayScreen() {

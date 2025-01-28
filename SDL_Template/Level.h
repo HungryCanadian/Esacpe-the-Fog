@@ -19,6 +19,8 @@ public:
 	void Update();
 	void Render();
 
+	float RandomFloat(float min, float max);
+
 
 
 private:
@@ -26,17 +28,10 @@ private:
 	SideBar* mSideBar;
 
 	Player* mPlayer;
-	Formation* mFormation;
 
 	static const int MAX_BUTTERFLIES = 16;
-	static const int MAX_WASPS = 20;
-	static const int MAX_BOSSES = 4;
 
 	int mButterflyCount;
-	int mWaspCount;
-	int mBossCount;
-
-	Butterfly* mFormationButterflies[MAX_BUTTERFLIES];
 
 	std::vector<Enemy*> mEnemies;
 
