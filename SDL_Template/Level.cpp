@@ -166,9 +166,11 @@ void Level::HandleEnemySpawning() {
 				// Create a random Butterfly and spawn at a random location
 				Butterfly* newEnemy = new Butterfly(0, false);
 
-				newEnemy->RandomlySpawn(minBoundary, maxBoundary);
-				std::cout << "Butterfly spawned at position: "
-					<< randX << ", " << randY << std::endl;
+				newEnemy->Position(randX, randY);
+
+
+				std::cout << "Butterfly spawned at position: ("
+					<< randX << ", " << randY << ")" << std::endl;
 				mEnemies.push_back(newEnemy);
 				
 				spawned = true;
@@ -183,37 +185,6 @@ void Level::HandleEnemySpawning() {
 		mSpawnTimer = 0.0f;
 	}
 }
-
-
-//void Level::HandleEnemyDiving() {
-//	if (mDivingButterfly == nullptr) {
-//		mButterflyDiveTimer += mTimer->DeltaTime();
-//
-//		if (mButterflyDiveTimer >= mButterflyDiveDelay) {
-//			bool skipped = false;
-//
-//			for (int i = MAX_BUTTERFLIES - 1; i >= 0; i--) {
-//				if (mFormationButterflies[i] != nullptr && mFormationButterflies[i]->CurrentState() == Enemy::InFormation) {
-//					if (!mSkipFirstbutterfly || (mSkipFirstbutterfly && skipped)) {
-//						mDivingButterfly = mFormationButterflies[i];
-//						mDivingButterfly->Dive();
-//						mSkipFirstbutterfly = !mSkipFirstbutterfly;
-//						break;
-//					}
-//				}
-//			}
-//			mButterflyDiveTimer = 0.0f;
-//		}
-//	}
-//	else {
-//		if (mDivingButterfly->CurrentState() != Enemy::Diving) {
-//			mDivingButterfly = nullptr;
-//		}
-//	}
-//}
-
-
-
 
 void Level::Update() {
 	if (!mStageStarted) {

@@ -81,7 +81,11 @@ void Butterfly::RandomlySpawn(Vector2 minBoundary, Vector2 maxBoundary) {
     float randomX = RandomFloat(minBoundary.x, maxBoundary.x);
     float randomY = RandomFloat(minBoundary.y, maxBoundary.y);
 
-    Position(Vector2(randomX, randomY));
+
+    Position(Vector2(400, 400));
+
+    std::cout << "Butterfly spawned at position: ("
+        << Position().x << ", " << Position().y << ")" << std::endl;
 }
 
 //void Butterfly::Dive(int type) {
