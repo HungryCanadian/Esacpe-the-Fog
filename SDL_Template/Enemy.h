@@ -8,7 +8,7 @@
 class Enemy : public PhysEntity {
 public:
 	enum States { InFormation, Diving, Dead };
-	enum Types { Butterfly, Boss };
+	enum Types { Pirate, Boss };
 
 	static void SetFormation(Formation* formation);
 
@@ -61,7 +61,6 @@ protected:
 	void JoinFormation();
 
 	virtual Vector2 WorldFormationPosition();
-	virtual Vector2 LocalFormationPosition() = 0;
 
 	virtual void HandleInFormationState();
 	virtual void HandleDiveState() = 0;
@@ -78,7 +77,12 @@ protected:
 	// Function to generate random float between min and max
 	float RandomFloat(float min, float max);
 
-	// Function to set random spawn position within a boundary
+	Vector2 mTargetPosition;  // Target position to move towards
+	bool mIsMovingToTarget;   // Flag to indicate if we are currently moving
+
+	Vector2 GenerateRandomPosition(Vector2 minBoundary, Vector2 maxBoundary);
+	void MoveToTarget();
+
 	
 private:
 	Enemy* mEnemy;

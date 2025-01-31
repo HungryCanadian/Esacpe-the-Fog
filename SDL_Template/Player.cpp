@@ -110,10 +110,14 @@ void Player::HandleMovement() {
 
 void Player::HandleFiring() {
 	if (mInput->KeyPressed(SDL_SCANCODE_SPACE)) {
+		// Loop through bullet pool to find an inactive bullet
 		for (int i = 0; i < MAX_BULLETS; ++i) {
 			if (!mBullets[i]->Active()) {
-				mBullets[i]->Fire(Position());
-				Mix_Volume(-1, 12);
+				mBullets[i]->Fire(Position(), Direction::Up);  // Fire upwards
+				mBullets[i + 1]->Fire(Position(), Direction::Down);  // Fire downwards (if there's space)
+
+				// Play the fire sound
+				Mix_Volume(-1, 36);
 				mAudio->PlaySFX("SFX/Fire.wav");
 				break;
 			}

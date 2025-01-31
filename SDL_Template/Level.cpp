@@ -49,18 +49,19 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 
 	mCurrentState = Running;
 
-	mButterflyCount = 0;
+	mFinishLineTimer = 0.0f;
+	mFinishLineDelay = 60.0f;
+	mFinishLine = new GLTexture("Finishline.png");
+	mFinishLine->Scale(Vector2(0.0f, 0.0f));
+	
 
-	mCurrentFlyInPriority = 0;
-	mCurrentFlyInIndex = 0;
 	mSpawnDelay = 0.2f;
 	mSpawnTimer = 0.0f;
 	mSpawningFinished = false;
 
-	mDivingButterfly = nullptr;
-	mSkipFirstbutterfly = false;
-	mButterflyDiveDelay = 1.0f;
-	mButterflyDiveTimer = 0.0f;
+	mRushingPirate = nullptr;
+	mPirateRushDelay = 4.0f;
+	mPirateRushTimer = 0.0f;
 
 	Enemy::CurrentPlayer(mPlayer);
 }
@@ -148,29 +149,42 @@ float Level::RandomFloat(float min, float max) {
 	return min + scale * (max - min);  // Scale it to the desired range
 }
 
+void Level::SpawnFinishLine() {
+	mFinishLineTimer += mTimer->DeltaTime();
+	// Set the spawn boundaries
+	Vector2 minBoundary(75.0f, 75.0f); // Top of the screen
+	Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
+	std::cout << "2Finish Line Timer is at: " << mFinishLineTimer << "!\n";
+	if (mFinishLineTimer >= mFinishLineDelay) {
+		std::cout << "Finish Line Timer is at: " << mFinishLineTimer << "!\n";
+		float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+		float randY = RandomFloat(minBoundary.y, maxBoundary.y);
+		mFinishLine = new GLTexture("Finishline.png");
+		mFinishLine->Position(randX, randY);
+		mFinishLine->Scale(Vector2(0.05f, 0.05f));
+
+		mFinishLineTimer = 0.0f;
+	}
+
+}
+
 void Level::HandleEnemySpawning() {
 	mSpawnTimer += mTimer->DeltaTime();
+	
+	// Set the spawn boundaries
+	Vector2 minBoundary(75.0f, 75.0f); // Top of the screen
+	Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
 	if (mSpawnTimer >= mSpawnDelay) {
 		bool spawned = false;
 		if (!mSpawningFinished) {
 			if (mEnemies.size() < MAX_BUTTERFLIES) {
-				// Set the spawn boundaries
-				Vector2 minBoundary(75.0f, -75.0f); // Top of the screen
-				Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
-
-				
-
 				// Randomly calculate the position within the boundaries
 				float randX = RandomFloat(minBoundary.x, maxBoundary.x);
 				float randY = RandomFloat(minBoundary.y, maxBoundary.y);
 				// Create a random Butterfly and spawn at a random location
-				Butterfly* newEnemy = new Butterfly(0, false);
+				Pirate* newEnemy = new Pirate(0, false);
 
 				newEnemy->Position(randX, randY);
-
-
-				std::cout << "Butterfly spawned at position: ("
-					<< randX << ", " << randY << ")" << std::endl;
 				mEnemies.push_back(newEnemy);
 				
 				spawned = true;
@@ -191,6 +205,7 @@ void Level::Update() {
 		HandleStartLabels();
 	}
 	else {
+		SpawnFinishLine();
 		if (!mSpawningFinished) {
 			HandleEnemySpawning();  // Handles the random spawning logic now
 		}
@@ -241,4 +256,5 @@ void Level::Render() {
 			}
 		}
 	}
+	mFinishLine->Render();
 }

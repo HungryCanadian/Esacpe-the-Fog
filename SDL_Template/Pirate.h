@@ -1,10 +1,10 @@
 #pragma once
 #include "Enemy.h"
 
-class Butterfly : public Enemy {
+class Pirate : public Enemy {
 public:
-	Butterfly(int index, bool challenge);
-	~Butterfly();
+	Pirate(int index, bool challenge);
+	~Pirate();
 
 	static void CreateDivePaths();
 
@@ -19,10 +19,6 @@ private:
 	//static std::vector<std::vector<Vector2>> sDivePaths;
 
 	//bool mEscort;
-
-	
-
-	Vector2 LocalFormationPosition() override;
 
 	void HandleDiveState() override;
 

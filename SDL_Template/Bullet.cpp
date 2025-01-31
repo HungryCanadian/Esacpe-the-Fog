@@ -34,10 +34,16 @@ Bullet::~Bullet() {
 	mTexture = nullptr;
 }
 
-void Bullet::Fire(Vector2 pos) {
+void Bullet::Fire(Vector2 pos, Direction direction) {
 	Position(pos);
 	Active(true);
+
+	// Set direction based on parameter passed from Player
+	SetDirection(direction); 
+
 }
+
+
 
 void Bullet::Reload() {
 	Active(false);
@@ -49,11 +55,18 @@ void Bullet::Hit(PhysEntity * other) {
 
 void Bullet::Update() {
 	if (Active()) {
-		Translate(-Vec2_Up * mSpeed * mTimer->DeltaTime());
+		// Move the bullet based on its direction
+		if (mDirection == Direction::Up) {
+			Translate(Vec2_Up * mSpeed * mTimer->DeltaTime());
+		}
+		else if (mDirection == Direction::Down) {
+			Translate(-Vec2_Up * mSpeed * mTimer->DeltaTime());
+		}
 
+		// Check if the bullet has gone off screen and reload it
 		Vector2 pos = Position();
-		if (pos.y < -OFFSCREEN_BUFFER) {
-			Reload();
+		if (pos.y < OFFSCREEN_BUFFER || pos.y > Graphics::SCREEN_HEIGHT - OFFSCREEN_BOTTOMBUFFER) {
+			Reload();  
 		}
 	}
 }

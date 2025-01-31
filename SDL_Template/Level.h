@@ -1,7 +1,7 @@
 #pragma once
 #include "SideBar.h"
 #include "Player.h"
-#include "Butterfly.h"
+#include "Pirate.h"
 #include "tinyxml2.h"
 
 using namespace SDLFramework;
@@ -35,19 +35,18 @@ private:
 
 	std::vector<Enemy*> mEnemies;
 
-	XMLDocument mSpawningPatterns;
-	int mCurrentFlyInPriority;
-	int mCurrentFlyInIndex;
+	float mFinishLineDelay;
+	float mFinishLineTimer;
+	Texture* mFinishLine;
 
 	float mSpawnDelay;
 	float mSpawnTimer;
 
 	bool mSpawningFinished;
 
-	Butterfly* mDivingButterfly;
-	bool mSkipFirstbutterfly;
-	float mButterflyDiveDelay;
-	float mButterflyDiveTimer;
+	Pirate* mRushingPirate;
+	float mPirateRushDelay;
+	float mPirateRushTimer;
 
 	int mStage;
 	bool mChallengeStage;
@@ -81,6 +80,8 @@ private:
 	void HandleStartLabels();
 	void HandleCollisions();
 	void HandlePlayerDeath();
+
+	void SpawnFinishLine();
 
 	void StartStage();
 

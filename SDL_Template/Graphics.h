@@ -28,7 +28,7 @@ namespace SDLFramework {
 
 		static const short SCREEN_WIDTH = 1024;
 		static const short SCREEN_HEIGHT = 896;
-		const char* WINDOW_TITLE = "Escape the Fog";
+		const char* WINDOW_TITLE = "Caspira:ETA";
 
 	protected:
 		static Graphics* sInstance;

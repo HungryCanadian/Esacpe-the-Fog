@@ -26,7 +26,7 @@ PlayScreen::PlayScreen() {
 	mPlaySpace = new GLTexture("PlaySpace.png");
 	mPlaySpace->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
-	Butterfly::CreateDivePaths();
+	Pirate::CreateDivePaths();
 
 }
 

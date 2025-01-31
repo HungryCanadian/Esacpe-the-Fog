@@ -11,7 +11,7 @@ void Enemy::SetFormation(Formation* formation) {
 }
 
 Vector2 Enemy::WorldFormationPosition() {
-	return sFormation->Position() + LocalFormationPosition();
+	return sFormation->Position();
 }
 
 void Enemy::FlyInComplete() {
@@ -43,7 +43,7 @@ void Enemy::Hit(PhysEntity* other) {
 	if (mCurrentState == InFormation) {
 		Parent(nullptr);
 	}
-
+	PhysicsManager::Instance()->UnregisterEntity(mId);
 	mCurrentState = Dead;
 }
 
@@ -52,7 +52,7 @@ int Enemy::Index() {
 }
 
 void Enemy::HandleInFormationState() {
-	Position(LocalFormationPosition());
+	Position();
 
 	float rotation = Rotation();
 	if (rotation != 0.0f) {
@@ -131,11 +131,19 @@ void Enemy::RandomlySpawn(Vector2 minBoundary, Vector2 maxBoundary) {
 	Position(Vector2(randomX, randomY));  // Set the enemy's position
 }
 
+Vector2 Enemy::GenerateRandomPosition(Vector2 minBoundary, Vector2 maxBoundary) {
+	float randomX = RandomFloat(minBoundary.x, maxBoundary.x);
+	float randomY = RandomFloat(minBoundary.y, maxBoundary.y);
+	return Vector2(randomX, randomY);
+}
+
+
 
 Enemy::Enemy(int index, bool challenge) : mIndex(index), mChallengeStage(challenge) {
 	mTimer = Timer::Instance();
 	mTexture = nullptr;
-	mSpeed = 450.0f;
+	mSpeed = 75.0f;
+	mIsMovingToTarget = false;
 
 	mId = PhysicsManager::Instance()->RegisterEntity(this, PhysicsManager::CollisionLayers::Hostile);
 
@@ -144,9 +152,7 @@ Enemy::Enemy(int index, bool challenge) : mIndex(index), mChallengeStage(challen
 	mDeathAnimation->Position(Vec2_Zero);
 	mDeathAnimation->SetWrapMode(Animation::WrapModes::Once);
 
-	Vector2 minBoundary(-100.0f, 300.0f);  // Example minimum boundary
-	Vector2 maxBoundary(800.0f, 600.0f);   // Example maximum boundary
-	RandomlySpawn(minBoundary, maxBoundary);
+
 }
 
 Enemy::~Enemy() {
@@ -168,16 +174,45 @@ bool Enemy::InDeathAnimation() {
 	return mDeathAnimation->IsAnimating();
 }
 
-//void Enemy::Dive(int type) {
-//	Parent(nullptr);
-//	mCurrentState = Diving;
-//	mDiveStartPosition = Position();
-//	mCurrentWaypoint = 1;
-//}
+void Enemy::MoveToTarget() {
+	Vector2 currentPosition = Position();
+	Vector2 direction = mTargetPosition - currentPosition;
+	float distance = direction.Length();
+
+	// If the direction is very large, print a warning (this is just a safety check)
+	if (distance > 10000.0f) {
+		std::cout << "Warning: Large distance detected. Something may be wrong with the target or position.\n";
+	}
+
+	if (distance > 5.0f) {  // Continue moving until we are close enough
+		direction = direction.Normalized();  // Normalize the direction so we move at a constant speed
+		Vector2 movement = direction * mSpeed * mTimer->DeltaTime();
+		Position(currentPosition + movement);
+	}
+	else {
+		mIsMovingToTarget = false;  // Stop moving once we reach the target
+
+		// Generate a new target position when we reach the current one
+		mTargetPosition = GenerateRandomPosition(Vector2(75.0f, 75.0f), Vector2(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f));
+		mIsMovingToTarget = true;  // Start moving to the new target
+	}
+}
+
 
 void Enemy::Update() {
 	if (Active()) {
 		HandleStates();
+
+		// If the enemy is not moving, pick a new target and start moving
+		if (!mIsMovingToTarget) {
+			mTargetPosition = GenerateRandomPosition(Vector2(75.0f, 75.0f), Vector2(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f)); // Update target
+			mIsMovingToTarget = true;
+		}
+
+		// Move the enemy towards the target position
+		if (mIsMovingToTarget) {
+			MoveToTarget();
+		}
 	}
 }
 
@@ -185,4 +220,5 @@ void Enemy::Render() {
 	if (Active()) {
 		RenderStates();
 	}
+	PhysEntity::Render();
 }
