@@ -16,15 +16,20 @@ void ScreenManager::Release() {
 }
 
 void ScreenManager::Update() {
-
+	int selectedMode = mStartScreen->SelectedMode();
 	switch (mCurrentScreen) {
 	case Start:
 		mStartScreen->Update();
 
 		if (mInput->KeyPressed(SDL_SCANCODE_RETURN)) {
-			mCurrentScreen = Play;
-			mStartScreen->ResetAnimation();
-			mPlayScreen->StartNewGame();
+			if (selectedMode == 0) {
+				mCurrentScreen = Play;
+				mStartScreen->ResetAnimation();
+				mPlayScreen->StartNewGame();
+			}
+			else if (selectedMode == 1) {
+				exit(0);
+			}
 		}
 		break;
 	case Play:

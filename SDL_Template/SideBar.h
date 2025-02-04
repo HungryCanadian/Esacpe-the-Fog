@@ -2,12 +2,13 @@
 #include "Timer.h"
 #include "Scoreboard.h"
 #include "AudioManager.h"
+#include "Player.h"
 
 using namespace SDLFramework;
 
 class SideBar : public GameEntity {
 public:
-	SideBar();
+	SideBar(Player* player);
 	~SideBar();
 
 	void SetShips(int ships);
@@ -48,6 +49,7 @@ private:
 
 	Scoreboard* mPlayerOneScore;
 
+	Player* mPlayer;
 	GameEntity* mShips;
 	Texture* mLivesLabelExtrude;
 	Texture* mLivesLabel;

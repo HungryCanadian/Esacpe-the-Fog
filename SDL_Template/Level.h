@@ -87,6 +87,12 @@ private:
 	void HandleCollisions();
 	void HandlePlayerDeath();
 
+<<<<<<< Updated upstream
+=======
+	void SpawnFinishLine();
+	bool IsPlayerCrossingFinishLine();
+
+>>>>>>> Stashed changes
 	void StartStage();
 
 	bool EnemyFlyingIn();

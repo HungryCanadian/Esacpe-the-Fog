@@ -1,7 +1,7 @@
 #include "SideBar.h"
 
 
-SideBar::SideBar() {
+SideBar::SideBar(Player* player) {
 	mTimer = Timer::Instance();
 	mAudio = AudioManager::Instance();
 
@@ -16,6 +16,8 @@ SideBar::SideBar() {
 	mHighLabelExtrude = new GLTexture("HIGHSCORE", "Extrude.otf", 31, { 0,0,0 });
 	mHighLabelExtrude->Parent(this);
 	mHighLabelExtrude->Position(-175.0f, -25.0f);
+
+	mPlayer = player;
 
 	mLevel = new GLTexture("Level", "Pixel.otf", 32, { 150,150,150 });
 	mLevel->Parent(this);
@@ -62,7 +64,7 @@ SideBar::SideBar() {
 
 	mBlinkTimer = 0.0f;
 	mBlinkInterval = 0.5f;
-	mOneUpLabelVisible = true; //TODO: Set to False when submitting
+	mOneUpLabelVisible = false; //TODO: Set to False when submitting
 
 	mPlayerOneScore = new Scoreboard();
 	mPlayerOneScore->Parent(this);
@@ -239,7 +241,7 @@ void SideBar::AddFlag(std::string filename, float width, int value) {
 	mFlagTextures[index]->Position(mFlagXOffset, mFlagYOffset);
 	mFlagXOffset += width * 0.5f;
 
-	mAudio->PlaySFX("FlagSound.wav", 0, -1);
+	//mAudio->PlaySFX("FlagSound.wav", 0, -1);
 }
 
 void SideBar::SetShips(int ships) {
@@ -262,6 +264,8 @@ void SideBar::SetLevel(int level) {
 	ClearFlags();
 	mLevelNumber->Score(level);
 	mRemainingLevels = level;
+	mPlayer->AddLife();
+	SetShips(mPlayer->Lives());
 	mFlagXOffset = 0.0f;
 }
 
@@ -301,7 +305,7 @@ void SideBar::Render() {
 	mScoreLabel->Render();
 	mHighScoreBoard->Render();
 
-	if (mOneUpLabelVisible == true) {
+	if (mOneUpLabelVisible) {
 		mOneUpLabel->Render();
 	}
 	mPlayerOneScore->Render();

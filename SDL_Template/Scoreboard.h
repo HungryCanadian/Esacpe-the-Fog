@@ -8,7 +8,7 @@ using namespace SDLFramework;
 class Scoreboard : public GameEntity {
 private:
 	std::vector<GLTexture *> mScore;
-
+	int mScoreValue;
 	SDL_Color mColor;
 
 public:
@@ -17,6 +17,7 @@ public:
 	~Scoreboard();
 
 	void Score(int score);
+	int Score();
 
 	void Render() override;
 

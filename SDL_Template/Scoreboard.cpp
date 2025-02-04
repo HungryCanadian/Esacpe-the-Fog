@@ -16,6 +16,8 @@ Scoreboard::~Scoreboard() {
 void Scoreboard::Score(int score) {
 	ClearBoard();
 
+	mScoreValue = score;
+
 	if (score == 0) {
 		for (int i = 0; i < 2; i++) {
 			mScore.push_back(new GLTexture("0", "emulogic.ttf", 24, mColor));
@@ -33,6 +35,10 @@ void Scoreboard::Score(int score) {
 			mScore[i]->Position(Vector2(-25.0f * (lastIndex - i), 0.0f));
 		}
 	}
+}
+
+int Scoreboard::Score() {
+	return mScoreValue;
 }
 
 void Scoreboard::Render() {

@@ -320,6 +320,7 @@ bool Enemy::InDeathAnimation() {
 	return mDeathAnimation->IsAnimating();
 }
 
+<<<<<<< Updated upstream
 void Enemy::Dive(int type) {
 	Parent(nullptr);
 	mCurrentState = Diving;
@@ -327,6 +328,43 @@ void Enemy::Dive(int type) {
 	mCurrentWaypoint = 1;
 }
 
+=======
+void Enemy::MoveToTarget() {
+	Vector2 currentPosition = Position();
+	Vector2 direction = mTargetPosition - currentPosition;
+	float distance = direction.Length();
+
+	// If the direction is very large, print a warning (this is just a safety check)
+	if (distance > 10000.0f) {
+		std::cout << "Warning: Large distance detected. Something may be wrong with the target or position.\n";
+	}
+
+	if (distance > 5.0f) {  // Continue moving until we are close enough
+		direction = direction.Normalized();  // Normalize the direction so we move at a constant speed
+		Vector2 movement = direction * mSpeed * mTimer->DeltaTime();
+		Position(currentPosition + movement);
+
+		// Calculate the angle to the target
+		float angleToTarget = atan2(direction.x, -direction.y);  // This gives the angle in radians
+		float angleInDegrees = angleToTarget * (180.0f / M_PI); // This converts it to degree's
+		// Update the rotation of the enemy to face the target
+		Rotation(angleInDegrees);
+	}
+	else {
+		mIsMovingToTarget = false;  // Stop moving once we reach the target
+
+		// Generate a new target position when we reach the current one
+		mTargetPosition = GenerateRandomPosition(Vector2(75.0f, 75.0f), Vector2(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f));
+		mIsMovingToTarget = true;  // Start moving to the new target
+	}
+}
+
+
+
+
+
+
+>>>>>>> Stashed changes
 void Enemy::Update() {
 	if (Active()) {
 		HandleStates();

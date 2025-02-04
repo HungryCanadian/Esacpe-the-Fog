@@ -77,6 +77,21 @@ protected:
 	virtual void RenderDeadState();
 
 	void RenderStates();
+<<<<<<< Updated upstream
+=======
+
+	// Function to generate random float between min and max
+	float RandomFloat(float min, float max);
+
+	Vector2 mTargetPosition;  // Target position to move towards
+	bool mIsMovingToTarget;   // Flag to indicate if we are currently moving
+	float mMovementProgress = 0.0f; // tracking the movement progress along the beziercurve
+
+	Vector2 GenerateRandomPosition(Vector2 minBoundary, Vector2 maxBoundary);
+	void MoveToTarget();
+
+	
+>>>>>>> Stashed changes
 private:
 	Enemy* mEnemy;
 };

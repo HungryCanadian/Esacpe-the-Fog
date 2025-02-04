@@ -8,7 +8,7 @@ PlayScreen::PlayScreen() {
 	mPlayer->Parent(this);
 	mPlayer->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
-	mSideBar = new SideBar();
+	mSideBar = new SideBar(mPlayer);
 	mSideBar->Parent(this);
 	mSideBar->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.93f);
 	mSideBar->SetShips(5);

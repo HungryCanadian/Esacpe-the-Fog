@@ -46,6 +46,7 @@ public:
 
 	int Score();
 	int Lives();
+	void AddLife();
 
 	void AddScore(int change);
 

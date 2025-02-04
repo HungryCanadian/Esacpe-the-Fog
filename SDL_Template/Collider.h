@@ -12,7 +12,11 @@ protected:
 	ColliderType mType;
 
 	static const bool DEBUG_COLLIDERS = false;
+<<<<<<< Updated upstream
 	Texture * mDebugTexture;
+=======
+	Texture* mDebugTexture;
+>>>>>>> Stashed changes
 
 	void SetDebugTexture(Texture * tex);
 

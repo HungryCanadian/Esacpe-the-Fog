@@ -1,11 +1,13 @@
 #include "Player.h"
 #include "BoxCollider.h"
 #include "PhysicsManager.h"
+#include "SideBar.h"
 
 Player::Player() {
 	mTimer = Timer::Instance();
 	mInput = InputManager::Instance();
 	mAudio = AudioManager::Instance();
+	
 
 	mVisible = true;
 	mAnimating = false;
@@ -137,6 +139,10 @@ int Player::Lives() {
 	return mLives;
 }
 
+void Player::AddLife() {
+	mLives += 1;
+}
+
 void Player::AddScore(int change) {
 	mScore += change;
 }
@@ -151,16 +157,12 @@ void Player::Hit(PhysEntity* other) {
 	mAnimating = true;
 	mDeathAnimation->ResetAnimation();
 	mAudio->PlaySFX("SFX/PlayerExplosion.wav");
+	Mix_Volume(-1, 12);
 	mWasHit = true;
 }
 
 bool Player::WasHit() {
-	mLives -= 1;
-	mAnimating = true;
-	mDeathAnimation->ResetAnimation();
-	mAudio->PlaySFX("PlayerExplosion.wav");
-	mWasHit = true;
-	return true;
+	return mWasHit;
 }
 
 void Player::Update() {

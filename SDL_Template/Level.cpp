@@ -15,7 +15,7 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 
 	mLabelTimer = 0.0f;
 
-	mStageLabel = new Texture("Level", "Pixel.otf", 52, { 0,0,0 });
+	mStageLabel = new GLTexture("Level", "Pixel.otf", 52, { 0,0,0 });
 	mStageLabel->Parent(this);
 	mStageLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.4f);
 
@@ -27,7 +27,7 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mStageLabelOnScreen = 0.0f;
 	mStageLabelOffScreen = 1.5f;
 
-	mReadyLabel = new Texture("Get Ready", "Pixel.otf", 52, { 150,0,0 });
+	mReadyLabel = new GLTexture("Get Ready", "Pixel.otf", 52, { 150,0,0 });
 	mReadyLabel->Parent(this);
 	mReadyLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.4f);
 
@@ -39,9 +39,9 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mRespawnDelay = 3.0f;
 	mRespawnLabelOnScreen = 2.0f;
 
-	mGameOverLabel = new Texture("Game Over!", "emulogic.ttf", 32, { 150,0,0 });
+	mGameOverLabel = new GLTexture("Game Over!", "emulogic.ttf", 32, { 150,0,0 });
 	mGameOverLabel->Parent(this);
-	mGameOverLabel->Position(Graphics::SCREEN_WIDTH * 0.4f, Graphics::SCREEN_HEIGHT * 0.5f);
+	mGameOverLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
 	mGameOverDelay = 6.0f;
 	mGameOverTimer = 0.0f;
@@ -110,7 +110,27 @@ Level::~Level() {
 		mFormationButterflies[i] = nullptr;
 	}
 
+<<<<<<< Updated upstream
 }
+=======
+bool Level::IsPlayerCrossingFinishLine() {
+	// Get player's position
+	Vector2 playerPosition = mPlayer->Position();
+
+	// Get finish line's position and scale
+	Vector2 finishLinePosition = mFinishLine->Position();
+	Vector2 finishLineScale = mFinishLine->ScaledDimensions();
+
+	// Check if the player has passed the finish line
+	bool crossedX = playerPosition.x > finishLinePosition.x && playerPosition.x < finishLinePosition.x + finishLineScale.x;
+	bool crossedY = playerPosition.y > finishLinePosition.y && playerPosition.y < finishLinePosition.y + finishLineScale.y;
+
+	// If both conditions are met, player has crossed the finish line
+	return crossedX && crossedY;
+}
+
+
+>>>>>>> Stashed changes
 
 Level::LevelStates Level::State() {
 	return mCurrentState;
@@ -134,8 +154,7 @@ void Level::HandleStartLabels() {
 
 void Level::HandleCollisions() {
 	if (!mPlayerHit) {
-		if (InputManager::Instance()->KeyPressed(SDL_SCANCODE_X)) {
-			mPlayer->WasHit();
+		if (mPlayer->WasHit()) {
 			mSideBar->SetShips(mPlayer->Lives());
 
 			mPlayerHit = true;
@@ -171,6 +190,31 @@ void Level::HandlePlayerDeath() {
 	}
 }
 
+<<<<<<< Updated upstream
+=======
+float Level::RandomFloat(float min, float max) {
+	float scale = static_cast<float>(rand()) / static_cast<float>(RAND_MAX); // Random number between 0 and 1
+	return min + scale * (max - min);  // Scale it to the desired range
+}
+
+void Level::SpawnFinishLine() {
+	mFinishLineTimer += mTimer->DeltaTime();
+	// Set the spawn boundaries
+	Vector2 minBoundary(75.0f, 75.0f); // Top of the screen
+	Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
+	if (mFinishLineTimer >= mFinishLineDelay) {
+		float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+		float randY = RandomFloat(minBoundary.y, maxBoundary.y);
+		mFinishLine = new GLTexture("Finishline.png");
+		mFinishLine->Position(randX, randY);
+		mFinishLine->Scale(Vector2(0.05f, 0.05f));
+
+		mFinishLineTimer = 0.0f;
+	}
+
+}
+
+>>>>>>> Stashed changes
 void Level::HandleEnemySpawning() {
 	mSpawnTimer += mTimer->DeltaTime();
 	if (mSpawnTimer >= mSpawnDelay) {
@@ -325,8 +369,13 @@ void Level::Update() {
 			HandlePlayerDeath();
 		}
 		else {
+<<<<<<< Updated upstream
 			//TODO: Temporary logic until enemeies implemented
 			if (InputManager::Instance()->KeyPressed(SDL_SCANCODE_N)) {
+=======
+			// Temporary logic for level ending
+			if (IsPlayerCrossingFinishLine()) {
+>>>>>>> Stashed changes
 				mCurrentState = Finished;
 			}
 		}
