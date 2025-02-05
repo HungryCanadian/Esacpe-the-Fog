@@ -1,6 +1,5 @@
 #pragma once
 #include "SideBar.h"
-#include "Player.h"
 #include "Pirate.h"
 #include "tinyxml2.h"
 
@@ -20,6 +19,7 @@ public:
 	void Render();
 
 	float RandomFloat(float min, float max);
+	void RemoveEnemy(Enemy* enemy);
 
 
 
@@ -29,9 +29,9 @@ private:
 
 	Player* mPlayer;
 
-	static const int MAX_BUTTERFLIES = 16;
+	static const int MAX_PIRATES = 16;
 
-	int mButterflyCount;
+	int mPirateCount;
 
 	std::vector<Enemy*> mEnemies;
 

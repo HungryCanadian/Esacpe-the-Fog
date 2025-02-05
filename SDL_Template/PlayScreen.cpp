@@ -53,7 +53,7 @@ PlayScreen::~PlayScreen() {
 }
 
 void PlayScreen::StartNewGame() {
-	mAudio->PlayMusic("/Music/Pirate 2.wav", 0);
+	mAudio->PlayMusic("/Music/Pirate 2.wav", -1);
 	Mix_VolumeMusic(12);
 	delete mPlayer;
 	mPlayer = new Player();

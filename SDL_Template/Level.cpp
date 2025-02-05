@@ -1,6 +1,8 @@
 #include "Level.h"
 
 void Level::StartStage() {
+	mPlayer->AddLife();
+	mSideBar->SetShips(mPlayer->Lives());
 	mStageStarted = true;
 }
 
@@ -55,13 +57,9 @@ Level::Level(int stage, SideBar* sideBar, Player* player) {
 	mFinishLine->Scale(Vector2(0.0f, 0.0f));
 
 
-	mSpawnDelay = 0.2f;
+	mSpawnDelay = 1.0f;
 	mSpawnTimer = 0.0f;
 	mSpawningFinished = false;
-
-	mRushingPirate = nullptr;
-	mPirateRushDelay = 4.0f;
-	mPirateRushTimer = 0.0f;
 
 	Enemy::CurrentPlayer(mPlayer);
 }
@@ -114,6 +112,7 @@ void Level::HandleCollisions() {
 			mPlayer->Active(false);
 		}
 	}
+
 }
 
 void Level::HandlePlayerDeath() {
@@ -186,31 +185,24 @@ void Level::HandleEnemySpawning() {
 	// Set the spawn boundaries
 	Vector2 minBoundary(75.0f, 75.0f); // Top of the screen
 	Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
-	if (mSpawnTimer >= mSpawnDelay) {
-		bool spawned = false;
-		if (!mSpawningFinished) {
-			if (mEnemies.size() < MAX_BUTTERFLIES) {
-				// Randomly calculate the position within the boundaries
-				float randX = RandomFloat(minBoundary.x, maxBoundary.x);
-				float randY = RandomFloat(minBoundary.y, maxBoundary.y);
-				// Create a random Butterfly and spawn at a random location
-				Pirate* newEnemy = new Pirate(0, false);
 
-				newEnemy->Position(randX, randY);
-				mEnemies.push_back(newEnemy);
+	// Check if we have fewer than MAX_PIRATES and if enough time has passed
+	if (mEnemies.size() < MAX_PIRATES && mSpawnTimer >= mSpawnDelay) {
+		// Randomly calculate the position within the boundaries
+		float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+		float randY = RandomFloat(minBoundary.y, maxBoundary.y);
 
-				spawned = true;
-			}
-		}
+		// Create a random Pirate (enemy) and spawn at a random location
+		Pirate* newEnemy = new Pirate(0, false);
 
-		if (!spawned) {
-			// Set flag for finishing spawning
-			mSpawningFinished = true;
-		}
+		newEnemy->Position(randX, randY);
+		mEnemies.push_back(newEnemy);
 
+		// Reset the spawn timer after spawning
 		mSpawnTimer = 0.0f;
 	}
 }
+
 
 void Level::Update() {
 	if (!mStageStarted) {

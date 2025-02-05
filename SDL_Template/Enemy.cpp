@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include "BoxCollider.h"
 #include "PhysicsManager.h"
+#include "Level.h"
+
 
 Player* Enemy::sPlayer = nullptr;
 Formation* Enemy::sFormation = nullptr;
@@ -97,6 +99,7 @@ void Enemy::HandleDeadState() {
 	if (mDeathAnimation->IsAnimating()) {
 		mDeathAnimation->Update();
 	}
+
 }
 
 void Enemy::CurrentPlayer(Player* player) {

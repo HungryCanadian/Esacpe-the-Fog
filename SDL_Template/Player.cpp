@@ -12,7 +12,7 @@ Player::Player() {
 	mWasHit = false;
 
 	mScore = 0;
-	mLives = 3;
+	mLives = 2;
 
 	mTexture[0] = new GLTexture("Ship.png");
 	mTexture[1] = new GLTexture("Ship1.png");
