@@ -1,6 +1,7 @@
 #ifndef __MATHHELPER_H
 #define __MATHHELPER_H
 #include <math.h>
+#include <cmath>
 
 namespace SDLFramework {
 
@@ -18,7 +19,9 @@ namespace SDLFramework {
 		float MagnitudeSqr() const {
 			return x * x + y * y;
 		}
-
+		float Length() const {
+			return std::sqrt(x * x + y * y);
+		}
 		float Magnitude() const {
 			return (float)sqrt(x * x + y * y);
 		}

@@ -1,7 +1,7 @@
 #pragma once
 #include "SideBar.h"
 #include "Player.h"
-#include "Butterfly.h"
+#include "Pirate.h"
 #include "tinyxml2.h"
 
 using namespace SDLFramework;
@@ -19,6 +19,8 @@ public:
 	void Update();
 	void Render();
 
+	float RandomFloat(float min, float max);
+
 
 
 private:
@@ -26,33 +28,25 @@ private:
 	SideBar* mSideBar;
 
 	Player* mPlayer;
-	Formation* mFormation;
 
 	static const int MAX_BUTTERFLIES = 16;
-	static const int MAX_WASPS = 20;
-	static const int MAX_BOSSES = 4;
 
 	int mButterflyCount;
-	int mWaspCount;
-	int mBossCount;
-
-	Butterfly* mFormationButterflies[MAX_BUTTERFLIES];
 
 	std::vector<Enemy*> mEnemies;
 
-	XMLDocument mSpawningPatterns;
-	int mCurrentFlyInPriority;
-	int mCurrentFlyInIndex;
+	float mFinishLineDelay;
+	float mFinishLineTimer;
+	Texture* mFinishLine;
 
 	float mSpawnDelay;
 	float mSpawnTimer;
 
 	bool mSpawningFinished;
 
-	Butterfly* mDivingButterfly;
-	bool mSkipFirstbutterfly;
-	float mButterflyDiveDelay;
-	float mButterflyDiveTimer;
+	Pirate* mRushingPirate;
+	float mPirateRushDelay;
+	float mPirateRushTimer;
 
 	int mStage;
 	bool mChallengeStage;
@@ -81,18 +75,13 @@ private:
 
 	LevelStates mCurrentState;
 
-
-
+	bool IsPlayerCrossingFinishLine();
 	void HandleStartLabels();
 	void HandleCollisions();
 	void HandlePlayerDeath();
 
-<<<<<<< Updated upstream
-=======
 	void SpawnFinishLine();
-	bool IsPlayerCrossingFinishLine();
 
->>>>>>> Stashed changes
 	void StartStage();
 
 	bool EnemyFlyingIn();

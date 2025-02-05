@@ -3,6 +3,7 @@
 #include "AnimatedGLTexture.h"
 #include "InputManager.h"
 #include "Scoreboard.h"
+#include "AudioManager.h"
 
 using namespace SDLFramework;
 
@@ -11,6 +12,7 @@ class StartScreen : public GameEntity {
 private:
 	Timer * mTimer;
 	InputManager * mInput;
+	AudioManager* mAudio;
 
 	//Background
 	Texture* mBackground;

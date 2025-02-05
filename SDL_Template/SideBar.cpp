@@ -62,8 +62,6 @@ SideBar::SideBar(Player* player) {
 	mOneUpLabel->Parent(this);
 	mOneUpLabel->Position(-45.0f, 0.0f);
 
-	mBlinkTimer = 0.0f;
-	mBlinkInterval = 0.5f;
 	mOneUpLabelVisible = false; //TODO: Set to False when submitting
 
 	mPlayerOneScore = new Scoreboard();
@@ -270,12 +268,6 @@ void SideBar::SetLevel(int level) {
 }
 
 void SideBar::Update() {
-	mBlinkTimer += mTimer->DeltaTime();
-
-	if (mBlinkTimer >= mBlinkInterval) {
-		mOneUpLabelVisible = !mOneUpLabelVisible;
-		mBlinkTimer = 0.0f;
-	}
 
 	if (mRemainingLevels > 0) {
 		mFlagTimer += mTimer->DeltaTime();

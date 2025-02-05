@@ -13,7 +13,7 @@ PlayScreen::PlayScreen() {
 	mSideBar->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.93f);
 	mSideBar->SetShips(5);
 
-	mStartLabel = new Texture("Start", "emulogic.ttf", 32, { 150,0,0 });
+	mStartLabel = new GLTexture("Start", "emulogic.ttf", 32, { 150,0,0 });
 	mStartLabel->Parent(this);
 	mStartLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
@@ -26,8 +26,8 @@ PlayScreen::PlayScreen() {
 	mPlaySpace = new GLTexture("PlaySpace.png");
 	mPlaySpace->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
-	Butterfly::CreateDivePaths();
-	Enemy::CreatePaths();
+	Pirate::CreateDivePaths();
+
 }
 
 PlayScreen::~PlayScreen() {
@@ -112,9 +112,9 @@ void PlayScreen::Update() {
 		mSideBar->SetPlayerScore(mPlayer->Score());
 	}
 	else {
-		
+
 		mGameStarted = true;
-		
+
 	}
 }
 

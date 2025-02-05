@@ -1,13 +1,11 @@
 #include "Player.h"
 #include "BoxCollider.h"
 #include "PhysicsManager.h"
-#include "SideBar.h"
 
 Player::Player() {
 	mTimer = Timer::Instance();
 	mInput = InputManager::Instance();
 	mAudio = AudioManager::Instance();
-	
 
 	mVisible = true;
 	mAnimating = false;
@@ -15,7 +13,7 @@ Player::Player() {
 
 	mScore = 0;
 	mLives = 3;
-	
+
 	mTexture[0] = new GLTexture("Ship.png");
 	mTexture[1] = new GLTexture("Ship1.png");
 	mTexture[2] = new GLTexture("Ship2.png");
@@ -43,7 +41,7 @@ Player::Player() {
 	}
 
 	AddCollider(new BoxCollider(Vector2(16.0f, 67.0f)));
-	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2( 9.0f, 5.0f));
+	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2(9.0f, 5.0f));
 	AddCollider(new BoxCollider(Vector2(10.0f, 24.0f)), Vector2(-9.0f, 5.0f));
 
 	mId = PhysicsManager::Instance()->RegisterEntity(this, PhysicsManager::CollisionLayers::Friendly);
@@ -112,10 +110,14 @@ void Player::HandleMovement() {
 
 void Player::HandleFiring() {
 	if (mInput->KeyPressed(SDL_SCANCODE_SPACE)) {
+		// Loop through bullet pool to find an inactive bullet
 		for (int i = 0; i < MAX_BULLETS; ++i) {
 			if (!mBullets[i]->Active()) {
-				mBullets[i]->Fire(Position());
-				Mix_Volume(-1, 12);
+				mBullets[i]->Fire(Position(), Direction::Up);  // Fire upwards
+				mBullets[i + 1]->Fire(Position(), Direction::Down);  // Fire downwards (if there's space)
+
+				// Play the fire sound
+				Mix_Volume(-1, 36);
 				mAudio->PlaySFX("SFX/Fire.wav");
 				break;
 			}
@@ -139,12 +141,12 @@ int Player::Lives() {
 	return mLives;
 }
 
-void Player::AddLife() {
-	mLives += 1;
-}
-
 void Player::AddScore(int change) {
 	mScore += change;
+}
+
+void Player::AddLife() {
+	mLives += 1;
 }
 
 bool Player::IgnoreCollisions()
@@ -157,7 +159,6 @@ void Player::Hit(PhysEntity* other) {
 	mAnimating = true;
 	mDeathAnimation->ResetAnimation();
 	mAudio->PlaySFX("SFX/PlayerExplosion.wav");
-	Mix_Volume(-1, 12);
 	mWasHit = true;
 }
 

@@ -3,6 +3,7 @@
 StartScreen::StartScreen() {
 	mTimer = Timer::Instance();
 	mInput = InputManager::Instance();
+	mAudio = AudioManager::Instance();
 
 	// top bar entities
 	mTopBar = new GameEntity(Graphics::SCREEN_WIDTH * 0.5f, 80.0f);
@@ -34,16 +35,17 @@ StartScreen::StartScreen() {
 	mTopScore->Score(308055);
 
 	// logo entities
-	mLogo = new GLTexture("Escape the Fog", "Pixel.otf", 100, { 200, 200, 200 });
-	mLogoExtrude = new GLTexture("Escape the Fog", "Extrude.otf", 100, { 50, 0, 200 });
-	mAnimatedLogo = new AnimatedGLTexture("CaspiraLogo.png", 0, 0, 360, 180, 3, 0.2f, Animation::Layouts::Vertical);
-	
+	mLogo = new GLTexture("CaspiraLogo.png", 0, 344, 360, 172);
+	mLogo->Scale(Vector2(1.0f, 1.0f));
+	/*mLogoExtrude = new GLTexture("Escape the Fog", "Extrude.otf", 100, { 50, 0, 200 });*/
+	mAnimatedLogo = new AnimatedGLTexture("CaspiraLogo.png", 0, 0, 360, 172, 3, 0.5f, Animation::Layouts::Vertical);
+
 	mLogo->Parent(this);
-	mLogoExtrude->Parent(this);
+	/*mLogoExtrude->Parent(this);*/
 	mAnimatedLogo->Parent(this);
 
 	mLogo->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
-	mLogoExtrude->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
+	/*mLogoExtrude->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);*/
 	mAnimatedLogo->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.32f);
 
 	// play mode entities
@@ -79,7 +81,10 @@ StartScreen::StartScreen() {
 	mNamco->Position(Vec2_Zero);
 	mDates->Position(0.0f, 90.0f);
 	mRights->Position(0.0f, 170.0f);
-	mBackground->Position(Graphics::Instance()->SCREEN_HEIGHT / 2,Graphics::Instance()->SCREEN_WIDTH / 2);
+	mBackground->Position(Graphics::Instance()->SCREEN_HEIGHT / 2, Graphics::Instance()->SCREEN_WIDTH / 2);
+
+	mAudio->PlayMusic("/Music/Pirate.wav", 0);
+	Mix_VolumeMusic(12);
 
 	// screen animation variables
 	ResetAnimation();
@@ -196,15 +201,15 @@ void StartScreen::Render() {
 	mPlayerOneScore->Render();
 	mTopScore->Render();
 
-	mLogoExtrude->Render();
-	mLogo->Render();
+	//mLogoExtrude->Render();
+	//mLogo->Render();
 
-	/*if (!mAnimationDone) {
+	if (!mAnimationDone) {
 		mLogo->Render();
 	}
 	else {
 		mAnimatedLogo->Render();
-	}*/
+	}
 
 	mOnePlayerMode->Render();
 	mQuit->Render();
