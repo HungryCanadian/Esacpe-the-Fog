@@ -112,7 +112,6 @@ void Level::HandleCollisions() {
 			mPlayer->Active(false);
 		}
 	}
-
 }
 
 void Level::HandlePlayerDeath() {
@@ -186,22 +185,50 @@ void Level::HandleEnemySpawning() {
 	Vector2 minBoundary(75.0f, 75.0f); // Top of the screen
 	Vector2 maxBoundary(Graphics::SCREEN_WIDTH - 75.0f, Graphics::SCREEN_HEIGHT - 200.0f);
 
-	// Check if we have fewer than MAX_PIRATES and if enough time has passed
-	if (mEnemies.size() < MAX_PIRATES && mSpawnTimer >= mSpawnDelay) {
-		// Randomly calculate the position within the boundaries
-		float randX = RandomFloat(minBoundary.x, maxBoundary.x);
-		float randY = RandomFloat(minBoundary.y, maxBoundary.y);
+	// Check if enough time has passed to spawn
+	if (mSpawnTimer >= mSpawnDelay) {
+		bool spawned = false;  // Flag to track if we spawned at least one pirate
 
-		// Create a random Pirate (enemy) and spawn at a random location
-		Pirate* newEnemy = new Pirate(0, false);
+		// First, iterate over the mEnemies array and replace nullptrs with new pirates
+		for (size_t i = 0; i < mEnemies.size(); i++) {
+			if (mEnemies[i] == nullptr || mEnemies[i]->CurrentState() == Enemy::States::Dead) {
+				// If the enemy is nullptr or in the Dead state, spawn a new enemy
 
-		newEnemy->Position(randX, randY);
-		mEnemies.push_back(newEnemy);
+				// Randomly calculate the position within the boundaries
+				float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+				float randY = RandomFloat(minBoundary.y, maxBoundary.y);
 
-		// Reset the spawn timer after spawning
-		mSpawnTimer = 0.0f;
+				// Create a new Pirate (enemy) and spawn at a random location
+				mEnemies[i] = new Pirate(0, false);
+				mEnemies[i]->Position(randX, randY);
+
+				// Reset the spawn timer after spawning
+				mSpawnTimer = 0.0f;
+				spawned = true;
+				break; // Exit the loop once an enemy is spawned
+			}
+		}
+
+		// If no nullptr was found and we have room for more pirates, push a new one
+		if (!spawned && mEnemies.size() < MAX_PIRATES) {
+			// Randomly calculate the position within the boundaries
+			float randX = RandomFloat(minBoundary.x, maxBoundary.x);
+			float randY = RandomFloat(minBoundary.y, maxBoundary.y);
+
+			// Create a new Pirate (enemy) and spawn at a random location
+			Pirate* newEnemy = new Pirate(0, false);
+			newEnemy->Position(randX, randY);
+
+			// Push the new enemy into the array
+			mEnemies.push_back(newEnemy);
+
+			// Reset the spawn timer after spawning
+			mSpawnTimer = 0.0f;
+		}
 	}
 }
+
+
 
 
 void Level::Update() {

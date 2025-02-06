@@ -18,7 +18,7 @@ PlayScreen::PlayScreen() {
 	mStartLabel->Position(Graphics::SCREEN_WIDTH * 0.5f, Graphics::SCREEN_HEIGHT * 0.5f);
 
 	mLevel = new Level(mCurrentStage, mSideBar, mPlayer);
-	mLevelStartDelay = 1.0f;
+	mLevelStartDelay = 3.0f;
 	mLevelStarted = false;
 
 	mBackground = new GLTexture("4.png");

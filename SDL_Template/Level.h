@@ -26,10 +26,10 @@ public:
 private:
 	Timer* mTimer;
 	SideBar* mSideBar;
-
+	Enemy* mEnemy;
 	Player* mPlayer;
 
-	static const int MAX_PIRATES = 16;
+	static const int MAX_PIRATES = 8;
 
 	int mPirateCount;
 
