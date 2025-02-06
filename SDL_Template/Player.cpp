@@ -113,8 +113,10 @@ void Player::HandleFiring() {
 		// Loop through bullet pool to find an inactive bullet
 		for (int i = 0; i < MAX_BULLETS; ++i) {
 			if (!mBullets[i]->Active()) {
-				mBullets[i]->Fire(Position(), Direction::Up);  // Fire upwards
-				mBullets[i + 1]->Fire(Position(), Direction::Down);  // Fire downwards (if there's space)
+				float rotation = Rotation();
+
+				mBullets[i]->Fire(Position(), Rotation(Local) + 90.0f, Direction::Up);  // Fire upwards
+				mBullets[i + 1]->Fire(Position(), Rotation(Local)+ 90.0f, Direction::Down);  // Fire downwards (if there's space)
 
 				// Play the fire sound
 				Mix_Volume(-1, 36);

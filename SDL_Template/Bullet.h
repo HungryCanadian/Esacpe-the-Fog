@@ -12,14 +12,16 @@ enum class Direction {
 
 class Bullet : public PhysEntity {
 private:
-	static const int OFFSCREEN_BUFFER = 75;
-	static const int OFFSCREEN_BOTTOMBUFFER = 200;
+	static const int TOP_BUFFER = 75;
+	static const int BOTTOM_BUFFER = 200;
+	static const int LEFT_BUFFER = 50;
+	static const int RIGHT_BUFFER = 50;
 public:
 
 	Bullet(bool friendly);
 	~Bullet();
 
-	void Fire(Vector2 pos, Direction direction);
+	void Fire(Vector2 pos, float rot, Direction direction);
 	void SetDirection(Direction dir) { mDirection = dir; }
 	void Reload();
 

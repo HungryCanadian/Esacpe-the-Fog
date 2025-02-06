@@ -34,9 +34,10 @@ Bullet::~Bullet() {
 	mTexture = nullptr;
 }
 
-void Bullet::Fire(Vector2 pos, Direction direction) {
+void Bullet::Fire(Vector2 pos, float rot, Direction direction) {
 	Position(pos);
 	Active(true);
+	Rotation(rot);
 
 	// Set direction based on parameter passed from Player
 	SetDirection(direction);
@@ -65,7 +66,10 @@ void Bullet::Update() {
 
 		// Check if the bullet has gone off screen and reload it
 		Vector2 pos = Position();
-		if (pos.y < OFFSCREEN_BUFFER || pos.y > Graphics::SCREEN_HEIGHT - OFFSCREEN_BOTTOMBUFFER) {
+		if (pos.y < TOP_BUFFER || pos.y > Graphics::SCREEN_HEIGHT - BOTTOM_BUFFER) {
+			Reload();
+		}
+		if (pos.x < LEFT_BUFFER || pos.x > Graphics::SCREEN_HEIGHT - RIGHT_BUFFER) {
 			Reload();
 		}
 	}
