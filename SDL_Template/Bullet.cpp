@@ -69,7 +69,7 @@ void Bullet::Update() {
 		if (pos.y < TOP_BUFFER || pos.y > Graphics::SCREEN_HEIGHT - BOTTOM_BUFFER) {
 			Reload();
 		}
-		if (pos.x < LEFT_BUFFER || pos.x > Graphics::SCREEN_HEIGHT - RIGHT_BUFFER) {
+		if (pos.x < LEFT_BUFFER || pos.x > Graphics::SCREEN_WIDTH - RIGHT_BUFFER) {
 			Reload();
 		}
 	}

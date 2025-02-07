@@ -15,7 +15,7 @@ private:
 	static const int TOP_BUFFER = 75;
 	static const int BOTTOM_BUFFER = 200;
 	static const int LEFT_BUFFER = 50;
-	static const int RIGHT_BUFFER = 50;
+	static const int RIGHT_BUFFER = 25;
 public:
 
 	Bullet(bool friendly);
