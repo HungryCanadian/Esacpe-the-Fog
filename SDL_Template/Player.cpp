@@ -76,18 +76,6 @@ void Player::HandleMovement() {
 	if (mInput->KeyDown(SDL_SCANCODE_W)) {
 		Translate(-Vec2_Up * mMoveSpeed * mTimer->DeltaTime(), Local);
 	}
-	if (mInput->KeyPressed(SDL_SCANCODE_1)) {
-		mCurrentTexture = 0;  // Set to first texture
-	}
-	else if (mInput->KeyPressed(SDL_SCANCODE_2)) {
-		mCurrentTexture = 1;  // Set to second texture
-	}
-	else if (mInput->KeyPressed(SDL_SCANCODE_3)) {
-		mCurrentTexture = 2;  // Set to third texture
-	}
-	else if (mInput->KeyPressed(SDL_SCANCODE_4)) {
-		mCurrentTexture = 3;  // Set to fourth texture
-	}
 
 	Vector2 pos = Position(Local);
 	if (pos.x < mMoveBoundsX.x) {

@@ -30,7 +30,7 @@ private:
 	Vector2 mMoveBoundsX;
 	Vector2 mMoveBoundsY;
 
-	static const int MAX_BULLETS = 6;
+	static const int MAX_BULLETS = 16;
 	Bullet * mBullets[MAX_BULLETS];
 
 private:
